@@ -1,0 +1,41 @@
+{
+  "name": "bucket-list-app",
+  "version": "1.0.0",
+  "description": "This Web App enables its users to keep a list of all the fun activities they intend to do within their lifetime.",
+  "main": "app.js",
+  "scripts": {
+    "test": "jest",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IMMANUEL5015/Bucket-List-App.git"
+  },
+  "author": "Immanuel Diai",
+  "contributors": [
+    {
+      "name": "Ngozi Ekekwe"
+    },
+    {
+      "name": "Uzo Akuxi"
+    }
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IMMANUEL5015/Bucket-List-App/issues"
+  },
+  "homepage": "https://github.com/IMMANUEL5015/Bucket-List-App#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.7",
+    "jest": "^24.9.0",
+    "mocha": "^6.2.2"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+        "**/*.js",
+        "!data/keyMap.js",
+        "!/node_modules/"
+    ]
+  }
+}
