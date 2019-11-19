@@ -9,7 +9,6 @@ mongoose.connect(process.env.MONGOOSE_URL, {
 });
 
 
-
 app.get('/health', (req, res) => { 
     res.status(201).send({ message: 'App started successfully'}); 
 });
