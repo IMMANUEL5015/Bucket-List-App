@@ -1,7 +1,7 @@
-var request = require('supertest');
+const request = require('supertest');
 
 describe('Testing express application', () => {
-    var server;
+    let server;
 
     beforeEach( () => {
         server = require('../server.js');
@@ -17,8 +17,14 @@ describe('Testing express application', () => {
         });
     });
 
-    test('unmatched routes should respond with: My Bucketlist Api Project', () => {
+    test('unmatched route should respond with: My Bucketlist Api Project', () => {
         return request(server).get('/').then(response => {
+            expect(response.body.message).toEqual('My Bucketlist Api Project');
+        });
+    });
+
+    test('another unmatched route should respond with: My Bucketlist Api Project', () => {
+        return request(server).get('/nothing').then(response => {
             expect(response.body.message).toEqual('My Bucketlist Api Project');
         });
     });
