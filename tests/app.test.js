@@ -9,5 +9,11 @@ describe('Test the health of my application', () => {
     });
 });
 
-    
+describe('Test unmatched route', () => {
+    test('it should respond with the message: My Bucketlist Api Project', () => {
+        return request(app).get('/').then(response => {
+            expect(response.body.message).toEqual('My Bucketlist Api Project');
+        });
+    });
+});  
 
