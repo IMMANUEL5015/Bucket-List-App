@@ -1,5 +1,8 @@
-const app = require('./server/app');
+const express = require('express');
+const app = express();
 
-app.listen(8080, () => {
-    console.log('Server is listening on PORT 8080');
+app.get('/health', (req, res) => {
+    res.status(201).send({message: "Bucket List App Started Successfully"});
 });
+app.listen(8080);
+module.exports = app;

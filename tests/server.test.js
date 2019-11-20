@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../server/app');
+const app = require('../server.js');
 
 describe('Test the health of my application', () => {
     test('It should respond with the message: Bucket List App Started Successfully', () => {
@@ -8,3 +8,12 @@ describe('Test the health of my application', () => {
         });
     });
 });
+
+describe('Test my server', () => {
+    test('It should be listening on Port 8080', async (done) => {
+            await app.listen(8000);
+            expect(app.listen()).toBeTruthy();
+            done();
+        });
+    });
+
