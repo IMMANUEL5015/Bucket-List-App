@@ -5,8 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "node server.js",
-    "test": "jest --forceExit",
-    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls"
+    "test": "SET NODE_ENV=test ./node_modules/.bin/jest | jest --forceExit",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
+    "stop": "server.js"
   },
   "repository": {
     "type": "git",

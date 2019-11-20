@@ -7,13 +7,14 @@ describe('Test the health of my application', () => {
             expect(response.body.message).toEqual('Bucket List App Started Successfully');
         });
     });
+
+
+    test('It should be listening on Port 8080', async (done) => {
+        await app.listen(8000);
+        expect(app.listen()).toBeTruthy();
+        done();
+    });
 });
 
-describe('Test my server', () => {
-    test('It should be listening on Port 8080', async (done) => {
-            await app.listen(8000);
-            expect(app.listen()).toBeTruthy();
-            done();
-        });
-    });
+    
 
