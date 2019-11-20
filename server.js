@@ -10,7 +10,7 @@ app.get("*", (req, res) => {
 });
 
 var server = app.listen(8080, () => {
-    var port = server.address().port;
+    const port = server.address().port;
     console.log('Express app is listening at port %s', port);
 });
 
