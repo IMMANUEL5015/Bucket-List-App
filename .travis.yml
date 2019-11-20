@@ -2,5 +2,4 @@ language: node_js
 node_js:
   - 10.16.0
 script:
-  - npm run stop
   - npm run coveralls
