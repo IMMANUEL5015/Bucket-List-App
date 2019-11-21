@@ -1,6 +1,6 @@
 const BucketList = require('../models/bucketlist.model');
 
-exports.createBucketList = (req, res, next) => {
-   const createdBucketList =  BucketList.create(req.body);
+exports.createBucketList = async (req, res, next) => {
+   const createdBucketList = await BucketList.create(req.body);
     res.status(201).json(createdBucketList);
 };

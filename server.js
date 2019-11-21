@@ -1,5 +1,13 @@
 const express = require('express');
+const bucketlistRoutes = require('./server/routes/bucketlist-routes');
+const mongodb = require('./server/mongodb/mongodb.connect');
 const app = express();
+
+mongodb.connect();
+
+app.use(express.json());
+
+app.use('/bucketlists', bucketlistRoutes);
 
 app.get('/health', (req, res) => {
     res.status(201).send({message: "Bucket List App Started Successfully"});

@@ -34,16 +34,16 @@ describe('BucketListController.createBucketList', () => {
         expect(BucketList.create).toBeCalledWith(newBucketList);
     });
 
-    test("Should return a response code of 201", () => {
+    test("Should return a response code of 201", async () => {
         //The route should respond with data and a status code of 201
-        BucketListController.createBucketList(req, res, next);
+       await BucketListController.createBucketList(req, res, next);
         expect(res.statusCode).toBe(201);
         expect(res._isEndCalled()).toBeTruthy();
     });
 
-    test("It should return json body in response", () => {
+    test("It should return json body in response", async () => {
         BucketList.create.mockReturnValue(newBucketList);
-        BucketListController.createBucketList(req, res, next);
+       await BucketListController.createBucketList(req, res, next);
         expect(res._getJSONData()).toStrictEqual(newBucketList);
     });
 });
