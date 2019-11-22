@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node server.js",
-    "test": "jest",
-    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls"
+    "test": "jest --forceExit",
+    "coveralls": "jest --forceExit --coverage && cat ./coverage/lcov.info | coveralls"
   },
   "repository": {
     "type": "git",
@@ -31,9 +31,11 @@
     "coveralls": "^3.0.7",
     "jest": "^24.9.0",
     "mocha": "^6.2.2",
+    "node-mocks-http": "^1.8.0",
     "supertest": "^4.0.2"
   },
   "jest": {
+    "testEnvironment": "node",
     "collectCoverageFrom": [
       "**/*.js",
       "!data/keyMap.js",

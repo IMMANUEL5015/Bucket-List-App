@@ -1,5 +1,13 @@
 const express = require('express');
+const bucketlistRoutes = require('./server/routes/bucketlist-routes');
+const mongodb = require('./server/mongodb/mongodb.connect');
 const app = express();
+
+mongodb.connect();
+
+app.use(express.json());
+
+app.use('/bucketlists', bucketlistRoutes);
 
 app.get('/health', (req, res) => {
     res.status(201).send({message: "Bucket List App Started Successfully"});
@@ -10,7 +18,7 @@ app.get("*", (req, res) => {
 });
 
 var server = app.listen(8080, () => {
-    var port = server.address().port;
+    const port = server.address().port;
     console.log('Express app is listening at port %s', port);
 });
 
