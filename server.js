@@ -2,6 +2,7 @@ const express = require('express');
 const mongodb = require('./server/mongodb/mongodb.connect');
 
 const bucketlistRoutes = require('./server/routes/bucketlist-routes');
+const authRoutes = require('./server/routes/authRoutes');
 
 const app = express();
 
@@ -9,8 +10,8 @@ mongodb.connect();
 
 app.use(express.json());
 
-
 app.use('/bucketlists', bucketlistRoutes);
+app.use('/auth', authRoutes);
 
 app.get('/health', (req, res) => {
     res.status(201).send({message: "Bucket List App Started Successfully"});
