@@ -2,7 +2,7 @@ const authController = require('../server/controllers/authController-signup');
 const User = require('../server/models/usermodel');
 const httpMocks = require('node-mocks-http');
 const fakeUser = require('./mock-data/new-user.json');
-
+const validator = require('validator');
 
 User.create = jest.fn();
 
@@ -33,6 +33,11 @@ describe("authController should a a new user to the database", () => {
         await authController.signup(req, res, next);
         expect(res.statusCode).toBe(201);
         expect(res._isEndCalled()).toBeTruthy();
+    });
+
+    test('expect password to be equal to confirmPassword ', async () => {
+        const newUser = await User.create(fakeUser);
+        expect(newUser.confirmPassword).toEqual(newUser.password);
     });
 
     test('should return a success message and a token in response', async () => {
