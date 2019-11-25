@@ -4,8 +4,8 @@ This Full Stack Web App helps its users to keep a list of all the fun and advent
 ## Code Download and Usage Instructions
 The following steps must be undertaken in order for the code of this project to work as intended.
 
-1. Clone the repo to your local machine using the **git clone <repo url>** command.
-2. Using the terminal navigate to the cloned directory
+1. Clone the repo to your local machine using the **git clone repo url** command.
+2. Using the terminal, navigate to the cloned directory
 3. Install all the project's dependencies using the **npm install** command.
 4. Start the server, using the command **npm start**.
 5. Congratulations, your Bucket-List-App is up and running.
