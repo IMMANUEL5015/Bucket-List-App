@@ -12,7 +12,7 @@ exports.signup = async(req, res, next) => {
             confirmPassword: req.body.confirmPassword
         });
 
-        const token = jwt.sign({id: newUser._id}, 'We-are-the-horns-of-the-increate', {expiresIn: '30d'});
+        const token = jwt.sign({id: newUser._id}, 'I-am-a-son-of-earth-and-starry-heaven' , {expiresIn: '30d'});;
 
         res.status(201).json({
             status: 'Success',

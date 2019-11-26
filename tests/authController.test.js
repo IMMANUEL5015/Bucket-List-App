@@ -1,4 +1,4 @@
-const authController = require('../server/controllers/authController-signup');
+const authController = require('../server/controllers/authController');
 const User = require('../server/models/usermodel');
 const httpMocks = require('node-mocks-http');
 const fakeUser = require('./mock-data/new-user.json');
