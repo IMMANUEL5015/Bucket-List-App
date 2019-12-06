@@ -1,9 +1,11 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 
 async function connect(){
-    await mongoose.connect("mongodb+srv://Immanuel50:chukaglorY55@cluster0-ggn2t.mongodb.net/bucketlist_App?retryWrites=true&w=majority", {
+    await mongoose.connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        useCreateIndex: true
     });
 }
 
