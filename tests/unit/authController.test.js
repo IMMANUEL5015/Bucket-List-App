@@ -1,7 +1,9 @@
 const authController = require('../../server/controllers/authController');
 const User = require('../../server/models/usermodel');
 const httpMocks = require('node-mocks-http');
-const fakeUser = require('../mock-data/new-user.json');
+const fakeUser = require('../mock-data/unit/new-user-unit.json');
+const loginUser = require('../mock-data/unit/login-user-unit.json');
+
 
 jest.mock('../../server/models/usermodel');
 
@@ -53,6 +55,86 @@ describe("AuthController API", () => {
 
         User.create.mockReturnValue(rejectedPromise);
         await authController.signup(request, response, next);
+
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+});
+
+//Logging in user
+describe("authController.login", () => {
+    it("should be a function", () => {
+        expect(typeof authController.login).toBe("function");
+    });
+
+    it("user login credentials should be in the body of the request", async () => {
+        request.body.email = loginUser.email;
+        request.body.password = loginUser.password;
+
+        await authController.login(request, response, next);
+
+        expect(request.body.email).toStrictEqual("immanueldiai@gmail.com");
+        expect(request.body.password).toStrictEqual("immanuelDiai345");
+    });
+
+    it("should return an error if email is ommitted", async () => {
+        request.body.email;
+        request.body.password = loginUser.password;
+
+        await authController.login(request, response, next);
+
+        expect(response.statusCode).toBe(400);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            "status": "Fail",
+            "message": "Please provide your email and password"
+        });
+    });
+
+    it("should return an error if password is ommitted", async () => {
+        request.body.email = loginUser.email;
+        request.body.password;
+
+        await authController.login(request, response, next);
+
+        expect(response.statusCode).toBe(400);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            "status": "Fail",
+            "message": "Please provide your email and password"
+        });
+    });
+
+    
+    it("error if user not found", async () => {
+        request.body.email = "incorrectemail@yahoo.com";
+        request.body.password = loginUser.email;
+
+        User.findOne.mockReturnValue(null);
+
+        await authController.login(request, response, next);
+
+        expect(response.statusCode).toBe(401); //statusCode 401 means Unauthorized
+    });
+
+    it("status code 401 if password is incorrect", async () => {
+        request.body.email = loginUser.email;
+        request.body.password = "incorrectPassword";
+
+        await authController.login(request, response, next);
+
+        expect(response.statusCode).toBe(401); //Unauthorized
+    });
+   
+    it("should handle errors", async () => {
+        request.body.email = loginUser.email;
+        request.body.password = loginUser.password;
+        
+        const errorMessage = {message: "Unable to perform login operation"};
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        User.findOne.mockReturnValue(rejectedPromise);
+
+        await authController.login(request, response, next);
 
         expect(next).toHaveBeenCalledWith(errorMessage);
     });

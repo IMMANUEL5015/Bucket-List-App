@@ -2,7 +2,7 @@
 const BucketListController = require('../../server/controllers/bucketlist.controller');
 const BucketList = require('../../server/models/bucketlist.model');
 const httpMocks = require('node-mocks-http');
-const newBucketList = require('../mock-data/new-bucketlist.json');
+const newBucketList = require('../mock-data/unit/new-bucketlist-unit.json');
 
 
 //Mock the BucketList Model methods
