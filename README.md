@@ -6,6 +6,17 @@
 ## About the Application
 This Full Stack Web App helps its users to keep a list of all the fun and adventurous activities they intend to do within their lifetime.
 
+## Application Features
+This Web Application has the features indicated below:
+
+### Authentication
+* This app utilizes JSON Web Tokens (JWT) for it's authentication purposes.
+* It generates a token upon successul signup / login and returns it to the client.
+
+### Users
+* It allows users to be created.
+* It allows users to login and obtain a token.
+
 ## Technologies Used in this Project
 * Node.js (Allows developers to utilize JavaScript in creating server side applications).
 * Express (Node.js framework)
