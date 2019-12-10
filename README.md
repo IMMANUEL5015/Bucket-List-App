@@ -74,7 +74,7 @@ Endpoint for Authentication API
      * Endpoint: POST: auth/signup
      * Body (application/json)
      
-    
+    ```
      {
     "username": "uniqueUsername",
     "fullName": "Unique User",
@@ -83,6 +83,7 @@ Endpoint for Authentication API
     "password": "longpassword",
     "confirmPassword": "longpassword"
     }
+    ```
    
 * Response
     * Status: 201: Created
@@ -112,11 +113,12 @@ Endpoint for Authentication API
      * Endpoint: POST: auth/login
      * Body (application/json)
      
-    
+    ```
      {
     "email": "uniqueuser@gmail.com"
     "password": "longpassword",
     }
+   ```
    
 * Response
     * Status: 201: Ok
