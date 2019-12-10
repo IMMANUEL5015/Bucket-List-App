@@ -14,7 +14,7 @@ This Web Application has the features indicated below:
 * It generates a token upon successul signup / login and returns it to the client.
 
 ### Users
-* It allows users to be created.
+* It allows users to be signed up.
 * It allows users to login and obtain a token.
 
 ## Technologies Used in this Project
@@ -59,7 +59,7 @@ The Users of this application are assigned a unique token upon a successful sign
 
 
 ### Sample Requests and Responses From the API
-- auth
+- **[auth](###Users)**
     - signup
     - login
 
