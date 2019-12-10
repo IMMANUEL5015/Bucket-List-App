@@ -62,3 +62,68 @@ The Users of this application are assigned a unique token upon a successful sign
 - auth
     - signup
     - login
+
+
+#### auth
+
+Endpoint for Authentication API
+
+**Signup user**
+
+*Request
+     * Endpoint: POST: auth/signup
+     * Body (application/json)
+     
+    
+     {
+    "username": "uniqueUsername",
+    "fullName": "Unique User",
+    "email": "uniqueuser@gmail.com",
+    "photo": "https://www.myprofilepicture.com",
+    "password": "longpassword",
+    "confirmPassword": "longpassword"
+    }
+   
+Response
+    * Status: 201: Created
+    * Body (application/json)
+ 
+```
+  {
+    "status": "User has been Successfully Created",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZWY2OTA1M2MzYTg3MWQ0NDQ5MDk5MSIsImlhdCI6MTU3NTk3MTA4NSwiZXhwIjoxNTc4NTYzMDg1fQ.sH2Sxh-26su6diHwI2c0qmskKx9uE3dr3yzhNscAK9w",
+    "data": {
+        "user": {
+            "_id": "5def69053c3a871d44490991",
+            "username": "uniqueUsername",
+            "fullName": "Unique User",
+            "email": "uniqueuser@gmail.com",
+            "photo": "https://www.myprofilepicture.com",
+            "password": "$2a$12$4C9Z5NfP9kTxTrSN94aTzek9/GmzsdUPt6r0rikiKrxNkwDltoKEy",
+            "__v": 0
+        }
+    }
+}
+```
+
+**Login an existing user**
+
+*Request
+     * Endpoint: POST: auth/login
+     * Body (application/json)
+     
+    
+     {
+    "email": "uniqueuser@gmail.com"
+    "password": "longpassword",
+    }
+   
+Response
+    * Status: 201: Ok
+    * Body (application/json)
+ ```
+  {
+    "status": "Success",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZWY2OTA1M2MzYTg3MWQ0NDQ5MDk5MSIsImlhdCI6MTU3NTk3MTczMCwiZXhwIjoxNTc4NTYzNzMwfQ.x8u_VwlX9efqeOoy63HWkjCRmd8es73J1iHoHwK4lS8"
+}
+```
