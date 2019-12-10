@@ -39,7 +39,7 @@ The following steps must be undertaken in order for the code of this project to 
 ```
 ## Postman Collection
 
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/38018e98135c489e6e8e)
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/b4e1f3acd2ad204c8672)
 
 You can use the button above to run the endpoints in postman. Take care to use unique details when signing up, because you cannot sign up with thesame details twice.
 
