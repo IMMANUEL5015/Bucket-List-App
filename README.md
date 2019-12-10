@@ -64,13 +64,13 @@ The Users of this application are assigned a unique token upon a successful sign
     - login
 
 
-#### **auth**
+**auth**
 
 Endpoint for Authentication API
 
 **Signup user**
 
-*Request
+Request
      * Endpoint: POST: auth/signup
      * Body (application/json)
      
@@ -108,7 +108,7 @@ Response
 
 **Login an existing user**
 
-*Request
+Request
      * Endpoint: POST: auth/login
      * Body (application/json)
      
@@ -121,6 +121,7 @@ Response
 Response
     * Status: 201: Ok
     * Body (application/json)
+    
  ```
   {
     "status": "Success",
