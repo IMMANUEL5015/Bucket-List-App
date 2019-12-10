@@ -37,5 +37,9 @@ The following steps must be undertaken in order for the code of this project to 
 6  You can run tests using **npm test** 
 7. Congratulations, your Bucket-List-App is up and running.
 ```
+## Postman Collection
 
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/38018e98135c489e6e8e)
+
+You can use the button above to run the endpoints in postman. Take care to use unique details when signing up, because you cannot sign up with thesame details twice.
 
