@@ -59,12 +59,12 @@ The Users of this application are assigned a unique token upon a successful sign
 
 
 ### Sample Requests and Responses From the API
-- **[auth](###users)**
+- **auth**
     - signup
     - login
 
 
-#### auth
+#### **auth**
 
 Endpoint for Authentication API
 
