@@ -59,7 +59,7 @@ The Users of this application are assigned a unique token upon a successful sign
 
 
 ### Sample Requests and Responses From the API
-- **[auth](###Users)**
+- **[auth](###users)**
     - signup
     - login
 
