@@ -43,3 +43,17 @@ The following steps must be undertaken in order for the code of this project to 
 
 You can use the button above to run the endpoints in postman. Take care to use unique details when signing up, because you cannot sign up with thesame details twice.
 
+## API DOCUMENTATION
+This API has endpoints, each of which are dedicated to a single task.
+The routes utilize HTTP response codes to indicate API status and errors.
+
+### Authentication
+The Users of this application are assigned a unique token upon a successful signup or login operation. This token is absolutely essential for subsequent HTTP requests to the API for authentication. API requests that are operationalized without authentication will recieve a **fail** response with the status code 401: Unauthorized Access.
+
+### API Endpoints and their Functionality
+
+| Endpoint              |Function                  |
+|-----------------------|--------------------------|
+| POST/auth/signup      | Signs up a user          |
+| POST/auth/login       | Logs in an existing user |
+|                       |                          |   
