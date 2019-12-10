@@ -11,7 +11,7 @@ jest.mock('../../server/models/bucketlist.model');
 //re-initialize variables before each test
 let request, response, next;
 
-//Create a fake version of the request and res objects
+//Create a fake version of the request and response objects
 beforeEach(() => {
     request = httpMocks.createRequest();
     response = httpMocks.createResponse();
