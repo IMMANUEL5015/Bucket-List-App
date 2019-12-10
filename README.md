@@ -45,7 +45,7 @@ You can use the button above to run the endpoints in postman. Take care to use u
 
 ## API DOCUMENTATION
 This API has endpoints, each of which are dedicated to a single task.
-The routes utilize HTTP response codes to indicate API status and errors.
+The routes utilizes HTTP response codes to indicate API status and errors.
 
 ### Authentication
 The Users of this application are assigned a unique token upon a successful signup or login operation. This token is absolutely essential for subsequent HTTP requests to the API for authentication. API requests that are operationalized without authentication will recieve a **fail** response with the status code 401: Unauthorized Access.
@@ -56,4 +56,9 @@ The Users of this application are assigned a unique token upon a successful sign
 |-----------------------|--------------------------|
 | POST/auth/signup      | Signs up a user          |
 | POST/auth/login       | Logs in an existing user |
-|                       |                          |   
+
+
+### Sample Requests and Responses From the API
+- auth
+    - signup
+    - login
