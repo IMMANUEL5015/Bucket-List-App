@@ -70,7 +70,7 @@ Endpoint for Authentication API
 
 **Signup user**
 
-Request
+* Request
      * Endpoint: POST: auth/signup
      * Body (application/json)
      
@@ -84,7 +84,7 @@ Request
     "confirmPassword": "longpassword"
     }
    
-Response
+* Response
     * Status: 201: Created
     * Body (application/json)
  
@@ -108,7 +108,7 @@ Response
 
 **Login an existing user**
 
-Request
+* Request
      * Endpoint: POST: auth/login
      * Body (application/json)
      
@@ -118,7 +118,7 @@ Request
     "password": "longpassword",
     }
    
-Response
+* Response
     * Status: 201: Ok
     * Body (application/json)
     
