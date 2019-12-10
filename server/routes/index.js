@@ -15,11 +15,11 @@ app.use('/bucketlists', bucketlistRoutes);
 app.use('/auth', authRoutes);
 
 app.get('/health', (request, response) => {
-    response.status(201).send({message: "Bucket List App Started Successfully"});
+    response.status(200).send({message: "Bucket List App Started Successfully"});
 });
 
 app.get("*", (request, response) => { 
-    response.status(201).send({ message: "My Bucketlist Api Project" }); 
+    response.status(200).send({ message: "My Bucketlist Api Project" }); 
 });
 
 app.use(errorHandlingMiddleware);
