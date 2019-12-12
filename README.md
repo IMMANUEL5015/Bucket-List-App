@@ -17,6 +17,9 @@ This Web Application has the features indicated below:
 * It allows users to be signed up.
 * It allows users to login and obtain a token.
 
+### Bucketlists
+* It allows new Bucketlists to be created by users.
+
 ## Technologies Used in this Project
 * Node.js (Allows developers to utilize JavaScript in creating server side applications).
 * Express (Node.js framework)
@@ -52,23 +55,25 @@ The Users of this application are assigned a unique token upon a successful sign
 
 ### API Endpoints and their Functionality
 
-| Endpoint              |Function                  |
-|-----------------------|--------------------------|
-| POST/auth/signup      | Signs up a user          |
-| POST/auth/login       | Logs in an existing user |
+| Endpoint                 |Function                     |
+|--------------------------|-----------------------------|
+| POST/auth/signup         | Signs up a user             |
+| POST/auth/login          | Logs in an existing user    |
+| POST/bucketlists         | Creates a new bucketlists   | 
 
 
 ### Sample Requests and Responses From the API
-- **auth**
-    - signup
-    - login
+- [auth](#auth)
+  - [Signup user](#signup-user)
+  - [Login user](#login-user)
+- [Bucketlist](#bucketlist)
+  - [Create bucketlist](#create-bucketlist)
+  
+ ### auth
+   - signup
+   - login
 
-
-**auth**
-
-Endpoint for Authentication API
-
-**Signup user**
+### Signup user
 
 * Request
      * Endpoint: POST: auth/signup
@@ -107,7 +112,7 @@ Endpoint for Authentication API
 }
 ```
 
-**Login an existing user**
+### Login user
 
 * Request
      * Endpoint: POST: auth/login
