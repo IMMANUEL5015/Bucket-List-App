@@ -59,7 +59,7 @@ The Users of this application are assigned a unique token upon a successful sign
 |--------------------------|-----------------------------|
 | POST/auth/signup         | Signs up a user             |
 | POST/auth/login          | Logs in an existing user    |
-| POST/bucketlists         | Creates a new bucketlists   | 
+| POST/bucketlists         | Creates a new bucketlist   | 
 
 
 ### Sample Requests and Responses From the API
@@ -133,5 +133,37 @@ The Users of this application are assigned a unique token upon a successful sign
   {
     "status": "Success",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZWY2OTA1M2MzYTg3MWQ0NDQ5MDk5MSIsImlhdCI6MTU3NTk3MTczMCwiZXhwIjoxNTc4NTYzNzMwfQ.x8u_VwlX9efqeOoy63HWkjCRmd8es73J1iHoHwK4lS8"
+}
+```
+
+### Bucketlist
+
+### Create bucketlist
+
+* Request
+     * Endpoint: POST: /bucketlists
+     * Body (application/json)
+     
+    ```
+    {
+    "title":"The Tower",
+    "description": "I intend to visit the leaning tower of pisa in Italy before I die.",
+    "created_by": "Unique username"
+    }
+    ```
+    
+  * Response
+        * Status: 201: Created
+        * Body (application/json)
+ 
+```
+  {
+    "_id": "5df1dd39a492e71344f691a7",
+    "title": "The Tower",
+    "description": "I intend to visit the leaning tower of pisa in Italy before I die.",
+    "created_by": "Unique username",
+    "date_created": "2019-12-12T06:24:57.915Z",
+    "date_modified": "2019-12-12T06:24:57.915Z",
+    "__v": 0
 }
 ```
