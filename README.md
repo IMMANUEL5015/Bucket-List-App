@@ -152,9 +152,9 @@ The Users of this application are assigned a unique token upon a successful sign
     }
     ```
     
-  * Response
-        * Status: 201: Created
-        * Body (application/json)
+ * Response
+      * Status: 201: Created
+      * Body (application/json)
  
 ```
   {
