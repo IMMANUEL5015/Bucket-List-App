@@ -10,7 +10,7 @@ describe("POST " + baseEndpoint, () => {
     //Make sure that our test data is not already in the database
     beforeAll( async () => {
         await Bucketlist.findOneAndDelete({
-             name: "The Tower"   
+             title: "The Tower"   
         }, () => {
             console.log('Bucketlist deleted!');
         });
@@ -19,7 +19,7 @@ describe("POST " + baseEndpoint, () => {
     //Making sure that our test data does not remain in the database
     afterAll( async () => {
         await Bucketlist.findOneAndDelete({
-             name: "The Tower"   
+             title: "The Tower"   
         }, () => {
             console.log('Bucketlist deleted!');
         });
@@ -31,7 +31,7 @@ describe("POST " + baseEndpoint, () => {
             .send(newBucketlist);
 
             expect(response.statusCode).toBe(201)//Successfully created
-            expect(response.body.name).toStrictEqual("The Tower");
+            expect(response.body.title).toStrictEqual("The Tower");
             expect(response.body.description).toStrictEqual("I intend to visit the Leaning Tower of Pisa.");
             expect(response.body.created_by).toStrictEqual("Immanuel Diai");
             expect(response.body.date_created).toBeTruthy();
@@ -41,11 +41,11 @@ describe("POST " + baseEndpoint, () => {
     it("should handle errors", async () => {
         const response =  await request(app)
             .post(baseEndpoint)
-            .send({"title": "Eat Eba"});
+            .send({"name": "Eat Eba"});
 
         expect(response.body).toStrictEqual({
             "status": "error",
-            "message": "BucketList validation failed: created_by: Please enter your unique username, description: A bucketlist must have a description, name: This is a required field"
+            "message": "BucketList validation failed: created_by: Please enter your unique username, description: A bucketlist must have a description, title: This is a required field"
         });
     });
 });

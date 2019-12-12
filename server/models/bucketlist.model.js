@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const bucketListSchema =  new mongoose.Schema({
-    name:{
+    title:{
         type: String, 
         required: [true, "This is a required field"]
     },
