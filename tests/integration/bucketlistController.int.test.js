@@ -48,5 +48,18 @@ describe("POST " + baseEndpoint, () => {
             "message": "BucketList validation failed: created_by: Please enter your unique username, description: A bucketlist must have a description, title: This is a required field"
         });
     });
+
+     //Tests for GET Requests to get all the Bucketlists
+     it("should GET " + baseEndpoint, async () => {
+        const response = await request(app).get(baseEndpoint);
+
+        expect(response.statusCode).toBe(200);
+        expect(Array.isArray(response.body)).toBeTruthy();
+        expect(response.body[0].title).toBeDefined();
+        expect(response.body[0].description).toBeDefined();
+        expect(response.body[0].date_created).toBeDefined();
+        expect(response.body[0].date_modified).toBeDefined();
+        expect(response.body[0].created_by).toBeDefined();
+    });
 });
 

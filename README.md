@@ -19,6 +19,8 @@ This Web Application has the features indicated below:
 
 ### Bucketlists
 * It allows new Bucketlists to be created by users.
+* It allows users to retrieve Bucketlists.
+
 
 ## Technologies Used in this Project
 * Node.js (Allows developers to utilize JavaScript in creating server side applications).
@@ -59,8 +61,9 @@ The Users of this application are assigned a unique token upon a successful sign
 |--------------------------|-----------------------------|
 | POST/auth/signup         | Signs up a user             |
 | POST/auth/login          | Logs in an existing user    |
-| POST/bucketlists         | Creates a new bucketlist   | 
-
+| POST/bucketlists         | Creates a new bucketlist    |
+| GET/bucketlists          | Retrieves all bucketlists   |
+ 
 
 ### Sample Requests and Responses From the API
 - [auth](#auth)
@@ -68,6 +71,7 @@ The Users of this application are assigned a unique token upon a successful sign
   - [Login user](#login-user)
 - [Bucketlist](#bucketlist)
   - [Create bucketlist](#create-bucketlist)
+  - [Get bucketlists](#get-bucketlists)
   
  ### auth
    - signup
@@ -166,4 +170,37 @@ The Users of this application are assigned a unique token upon a successful sign
     "date_modified": "2019-12-12T06:24:57.915Z",
     "__v": 0
 }
+```
+
+### Get bucketlists
+
+* Request
+     * Endpoint: GET: /bucketlists
+
+    
+ * Response
+      * Status: 200: Ok
+      * Body (application/json)
+ 
+```
+  [
+    {
+        "_id": "5df1dd00a492e71344f691a6",
+        "title": "Climb a Mountain",
+        "description": "It has always been my dream to climb the great Mountain Everest.",
+        "created_by": "Immanuel Diai",
+        "date_created": "2019-12-12T06:24:00.951Z",
+        "date_modified": "2019-12-12T06:24:00.953Z",
+        "__v": 0
+    },
+    {
+        "_id": "5df2192b2d68400ed80ec1e6",
+        "title": "Visit Israel",
+        "description": "I intend to visit the Holy Land  before I die.",
+        "created_by": "Immanuel Diai",
+        "date_created": "2019-12-12T10:40:43.619Z",
+        "date_modified": "2019-12-12T10:40:43.619Z",
+        "__v": 0
+    }
+]
 ```
