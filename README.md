@@ -213,6 +213,7 @@ The Users of this application are assigned a unique token upon a successful sign
 * Request
     * Endpoint: `/bucketlists/:bucketlistId`
     * Body: `application/json`
+    
 
     ```
       {
@@ -222,6 +223,7 @@ The Users of this application are assigned a unique token upon a successful sign
 * Response
     * Status: `200: Ok`
     * Body: `application/json`
+    
 
     ```
         {
