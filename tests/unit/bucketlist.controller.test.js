@@ -3,6 +3,7 @@ const BucketListController = require('../../server/controllers/bucketlist.contro
 const BucketList = require('../../server/models/bucketlist.model');
 const httpMocks = require('node-mocks-http');
 const newBucketList = require('../mock-data/unit/new-bucketlist-unit.json');
+const allBucketLists = require('../mock-data/unit/all-bucketlists.json')
 
 
 //Mock the BucketList Model methods
@@ -18,6 +19,38 @@ beforeEach(() => {
     next = jest.fn();
 });
 
+//Tests for getting all bucketlists
+describe("BucketlistController.getBucketlists", () => {
+    it("should be a function", () => {
+        expect(typeof BucketListController.getBucketlists).toBe('function');
+    });
+
+    it("should call Bucketlist.find({})", async () => {
+        await BucketListController.getBucketlists(request, response, next);
+        expect(BucketList.find).toHaveBeenCalledWith({});
+    });
+
+    it("should respond with a status code of 200 and all bucketlists", async () => {
+        BucketList.find.mockReturnValue(allBucketLists);
+        await BucketListController.getBucketlists(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(allBucketLists);
+    });
+
+    //error handling test for get request
+    it('should handle errors correctly', async () => {
+        const errorMessage = {message: "Unable to find bucketlists"};
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        BucketList.find.mockReturnValue(rejectedPromise);
+
+        await BucketListController.getBucketlists(request, response, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+});
+
+//Unit tests for creating bucketlists controller
 describe('BucketListController.createBucketList', () => {
     beforeEach(() => {
         request.body = newBucketList;
