@@ -19,3 +19,24 @@ exports.getBucketlists = async (request, response, next) => {
         next(error);
     }
 };
+
+//Update a Single Bucketlist
+exports.updateBucketList =  async (request, response, next) => {
+    try{
+        const updatedBucketlist = await BucketList.findByIdAndUpdate(request.params.bucketlistId, request.body, {
+            new: true,
+            useFindAndModify: false
+        });
+
+        if(updatedBucketlist){
+            response.status(200).json(updatedBucketlist);
+        }else{
+            response.status(404).json({
+                status: "Not Found",
+                message: "Unable to find a matching Bucketlist" 
+            });
+        }
+    }catch(error){
+        next(error);
+    }
+}

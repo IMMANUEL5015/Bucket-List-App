@@ -12,6 +12,9 @@ jest.mock('../../server/models/bucketlist.model');
 //re-initialize variables before each test
 let request, response, next;
 
+//Simulated id for testing purposes
+let bucketlistId = "5def4ed3921dc21414ac979c";
+
 //Create a fake version of the request and response objects
 beforeEach(() => {
     request = httpMocks.createRequest();
@@ -88,5 +91,54 @@ describe('BucketListController.createBucketList', () => {
         await BucketListController.createBucketList(request, response, next);
 
         expect(next).toBeCalledWith(errorMessage);
+    });
+});
+
+//Tests for updating a single bucketlist
+describe("BucketListController.updateBucketList", () => {
+    it('should be a function', () => {
+        expect(typeof BucketListController.updateBucketList).toBe('function');
+    });
+
+    it("should call BucketList.FindByIdAndUpdate", async () => {
+        request.params.bucketlistId = bucketlistId;
+        request.body = newBucketList;
+
+        await BucketListController.updateBucketList(request, response, next);
+        expect(BucketList.findByIdAndUpdate).toHaveBeenCalledWith(bucketlistId, newBucketList, {
+            new: true,
+            useFindAndModify: false
+        });
+    });
+
+    it("should return a status code of 200 and json data", async () => {
+        BucketList.findByIdAndUpdate.mockReturnValue(newBucketList);
+
+        await BucketListController.updateBucketList(request, response, next);
+
+        expect(response.statusCode).toBe(200);
+        expect(response._getJSONData()).toStrictEqual(newBucketList);
+    });
+
+    it("should handle errors properly", async () => {
+        const errorMessage = {message: "Unable to find and update bucketlist"};
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        BucketList.findByIdAndUpdate.mockReturnValue(rejectedPromise);
+
+        await BucketListController.updateBucketList(request, response, next);
+        expect(next).toBeCalledWith(errorMessage);
+    });
+
+    it("should return a status code of 404 if no Bucketlist is found", async () => {
+        BucketList.findByIdAndUpdate.mockReturnValue(null);
+        await BucketListController.updateBucketList(request, response, next);
+
+        expect(response.statusCode).toBe(404);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Not Found",
+            message: "Unable to find a matching Bucketlist"
+        });
     });
 });
