@@ -6,5 +6,5 @@ const router = express.Router();
 router.post('/', bucketlistController.createBucketList);
 router.get('/', bucketlistController.getBucketlists);
 router.put('/:bucketlistId', bucketlistController.updateBucketList);
-
+router.get('/:bucketlistId', bucketlistController.getSpecificBucketlist);
 module.exports = router;

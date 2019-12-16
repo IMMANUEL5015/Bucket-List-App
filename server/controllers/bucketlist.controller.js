@@ -40,3 +40,20 @@ exports.updateBucketList =  async (request, response, next) => {
         next(error);
     }
 }
+
+//Get a Specific Bucketlist
+exports.getSpecificBucketlist = async(request, response, next) => {
+    try{
+        const bucketlist = await BucketList.findById(request.params.bucketlistId);
+        if(bucketlist){
+            response.status(200).json(bucketlist);
+
+        }else{
+            response.status(404).json({
+                message: "This Bucketlist does not exist."
+            });
+        }
+    }catch(error){
+        next(error);
+    }  
+}

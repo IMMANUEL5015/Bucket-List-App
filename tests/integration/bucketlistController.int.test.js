@@ -78,5 +78,18 @@ describe("BucketList API Endpoints", () => {
         expect(response.body.description).toStrictEqual("I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.");
         expect(response.statusCode).toBe(200);
     });
+
+    //Test for GETTING a SINGLE Bucketlist
+    it("should get a specific Bucketlist, by it's id", async () => {
+        const response = await request(app)
+            .get(baseEndpoint + BucketlistId);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.title).toStrictEqual("The Tower");
+        expect(response.body.description).toStrictEqual("I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.");
+        expect(response.body.created_by).toStrictEqual("Immanuel Diai");
+        expect(response.body.date_created).toBeTruthy();
+        expect(response.body.date_modified).toBeTruthy();
+    });
 });
 
