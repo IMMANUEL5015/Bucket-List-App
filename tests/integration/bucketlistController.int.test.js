@@ -3,10 +3,12 @@ const app = require('../../server/routes/index');
 const newBucketlist = require('../mock-data/integration/new-bucketlist-int.json');
 const Bucketlist = require('../../server/models/bucketlist.model');
 
-const baseEndpoint = "/bucketlists"
+const baseEndpoint = "/bucketlists/"
 
-//Creating a bucketlist
-describe("POST " + baseEndpoint, () => {
+//id of the first Bucketlist in the database
+let BucketlistId;
+
+describe("BucketList API Endpoints", () => {
     //Make sure that our test data is not already in the database
     beforeAll( async () => {
         await Bucketlist.findOneAndDelete({
@@ -25,6 +27,7 @@ describe("POST " + baseEndpoint, () => {
         });
     });
 
+    //Creating a bucketlist
     it("should create a new bucketlist successfully", async () => {
         const response = await request(app)
             .post(baseEndpoint)
@@ -36,8 +39,11 @@ describe("POST " + baseEndpoint, () => {
             expect(response.body.created_by).toStrictEqual("Immanuel Diai");
             expect(response.body.date_created).toBeTruthy();
             expect(response.body.date_modified).toBeTruthy();
+
+            BucketlistId = response.body._id;
     });
 
+    //Handle errors when creating a bucketlist
     it("should handle errors", async () => {
         const response =  await request(app)
             .post(baseEndpoint)
@@ -49,8 +55,8 @@ describe("POST " + baseEndpoint, () => {
         });
     });
 
-     //Tests for GET Requests to get all the Bucketlists
-     it("should GET " + baseEndpoint, async () => {
+    //Tests for GET Requests to get all the Bucketlists
+    it("should get all the bucketlists", async () => {
         const response = await request(app).get(baseEndpoint);
 
         expect(response.statusCode).toBe(200);
@@ -60,6 +66,17 @@ describe("POST " + baseEndpoint, () => {
         expect(response.body[0].date_created).toBeDefined();
         expect(response.body[0].date_modified).toBeDefined();
         expect(response.body[0].created_by).toBeDefined();
+    });
+
+    //Tests for updating a matching Bucketlist
+    it("should update a matching bucketlist", async () => {
+        const response = await request(app).put(baseEndpoint + BucketlistId).send({
+            "description": "I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.",
+        });
+
+        expect(response.body.title).toBe("The Tower");
+        expect(response.body.description).toStrictEqual("I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.");
+        expect(response.statusCode).toBe(200);
     });
 });
 

@@ -20,6 +20,7 @@ This Web Application has the features indicated below:
 ### Bucketlists
 * It allows new Bucketlists to be created by users.
 * It allows users to retrieve Bucketlists.
+* It gives users the ability to edit and update Bucketlists.
 
 
 ## Technologies Used in this Project
@@ -53,16 +54,17 @@ This API has endpoints, each of which are dedicated to a single task.
 The routes utilizes HTTP response codes to indicate API status and errors.
 
 ### Authentication
-The Users of this application are assigned a unique token upon a successful signup or login operation. This token is absolutely essential for subsequent HTTP requests to the API for authentication. API requests that are operationalized without authentication will recieve a **fail** response with the status code 401: Unauthorized Access.
+The Users of this application are assigned a unique token upon a successful signup or login operation. This token is absolutely essential for subsequent HTTP requests to the API for authentication. API requests that are operationalized without authentication will recieve a **fail** response with the status code 401: Unauthorized Access. The token can be attached to the request's header as the value of the **authorization** key.
 
 ### API Endpoints and their Functionality
 
-| Endpoint                 |Function                     |
-|--------------------------|-----------------------------|
-| POST/auth/signup         | Signs up a user             |
-| POST/auth/login          | Logs in an existing user    |
-| POST/bucketlists         | Creates a new bucketlist    |
-| GET/bucketlists          | Retrieves all bucketlists   |
+| Endpoint                      |Function                     |
+|-------------------------------|-----------------------------|
+| POST/auth/signup              | Signs up a user             |
+| POST/auth/login               | Logs in an existing user    |
+| POST/bucketlists              | Creates a new bucketlist    |
+| GET/bucketlists               | Retrieves all bucketlists   |
+| PUT/bucketlists/:bucketlistId | Edit and Update a bucketlist|
  
 
 ### Sample Requests and Responses From the API
@@ -72,6 +74,7 @@ The Users of this application are assigned a unique token upon a successful sign
 - [Bucketlist](#bucketlist)
   - [Create bucketlist](#create-bucketlist)
   - [Get bucketlists](#get-bucketlists)
+  - [Update bucketlist](#update-bucketlist)
   
  ### auth
    - signup
@@ -204,3 +207,32 @@ The Users of this application are assigned a unique token upon a successful sign
     }
 ]
 ```
+
+### Update bucketlist
+
+* Request
+    * Endpoint: `/bucketlists/:bucketlistId`
+    * Body: `application/json`
+    
+
+    ```
+      {
+        "description": "I have a strong desire to visit the Holy Land  before I die."
+    }
+    ```
+* Response
+    * Status: `200: Ok`
+    * Body: `application/json`
+    
+
+    ```
+        {
+            "_id": "5df2192b2d68400ed80ec1e6",
+            "title": "Visit Israel",
+            "description": "I have a strong desire to visit the Holy Land  before I die.",
+            "created_by": "Immanuel Diai",
+            "date_created": "2019-12-12T10:40:43.619Z",
+            "date_modified": "2019-12-12T10:40:43.619Z",
+            "__v": 0
+        }
+    ```    
