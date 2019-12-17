@@ -28,7 +28,7 @@ describe("BucketList API Endpoints", () => {
     });
 
     //Creating a bucketlist
-    it("should create a new bucketlist successfully", async () => {
+    it("should be able to create a new bucketlist successfully", async () => {
         const response = await request(app)
             .post(baseEndpoint)
             .send(newBucketlist);
@@ -56,7 +56,7 @@ describe("BucketList API Endpoints", () => {
     });
 
     //Tests for GET Requests to get all the Bucketlists
-    it("should get all the bucketlists", async () => {
+    it("should be able to get all the bucketlists", async () => {
         const response = await request(app).get(baseEndpoint);
 
         expect(response.statusCode).toBe(200);
@@ -69,7 +69,7 @@ describe("BucketList API Endpoints", () => {
     });
 
     //Tests for updating a matching Bucketlist
-    it("should update a matching bucketlist", async () => {
+    it("should be able to update a matching bucketlist", async () => {
         const response = await request(app).put(baseEndpoint + id).send({
             "description": "I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.",
         });
@@ -80,7 +80,7 @@ describe("BucketList API Endpoints", () => {
     });
 
     //Test for GETTING a SINGLE Bucketlist
-    it("should get a specific Bucketlist, by it's id", async () => {
+    it("should be able to get a specific Bucketlist, by it's id", async () => {
         const response = await request(app)
             .get(baseEndpoint + id);
 
@@ -90,6 +90,13 @@ describe("BucketList API Endpoints", () => {
         expect(response.body.created_by).toStrictEqual("Immanuel Diai");
         expect(response.body.date_created).toBeTruthy();
         expect(response.body.date_modified).toBeTruthy();
+    });
+
+    //Test for DELETING a SPECIFIC Bucketlist
+    it("should be able to delete a single Bucketlist", async () => {
+        const response =  await request(app).delete(baseEndpoint + id);
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toStrictEqual({message: "Bucketlist has been successfully deleted"});
     });
 });
 

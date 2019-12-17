@@ -12,7 +12,7 @@ jest.mock('../../server/models/bucketlist.model');
 //re-initialize variables before each test
 let request, response, next;
 
-//Simulated id for testing purposes
+//Simulated Bucketlist id for testing purposes
 let id = "5def4ed3921dc21414ac979c";
 
 //Create a fake version of the request and response objects
@@ -182,5 +182,43 @@ describe("BucketListController.getSpecificBucketlist", () => {
         expect(response.statusCode).toBe(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(errorMessage);
+    });
+});
+
+//Tests for deleting a specific Bucketlist
+describe("BucketlistController.deleteBucketlist", () => {
+    it("should be a function", () => {
+        expect(typeof BucketListController.deleteBucketlist).toBe("function");
+    });
+
+    it("should call BucketList.findByIdAndDelete with an id", async () => {
+        request.params.id = id;
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(BucketList.findByIdAndDelete).toHaveBeenCalledWith(id);
+    });
+
+    it("should return a status code of 200 and a success message", async () => {
+        const successMessage = {message: "Bucketlist has been successfully deleted"};
+        BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(successMessage);
+    });
+
+    it("should handle errors", async () => {
+        const errorMessage = {message: "An error occured in trying to find and delete the Bucketlist. Please try again."};
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        BucketList.findByIdAndDelete.mockReturnValue(rejectedPromise);
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+
+    it("should return a status code of 404 if the Bucketlist to be deleted is not found", async () => {
+        BucketList.findByIdAndDelete.mockReturnValue(null);
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(response.statusCode).toBe(404);
+        expect(response._getJSONData()).toStrictEqual({message: "This Bucketlist does not exist."});
     });
 });
