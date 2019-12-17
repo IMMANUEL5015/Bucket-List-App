@@ -13,7 +13,7 @@ jest.mock('../../server/models/bucketlist.model');
 let request, response, next;
 
 //Simulated id for testing purposes
-let bucketlistId = "5def4ed3921dc21414ac979c";
+let id = "5def4ed3921dc21414ac979c";
 
 //Create a fake version of the request and response objects
 beforeEach(() => {
@@ -101,11 +101,11 @@ describe("BucketListController.updateBucketList", () => {
     });
 
     it("should call BucketList.FindByIdAndUpdate", async () => {
-        request.params.bucketlistId = bucketlistId;
+        request.params.id = id;
         request.body = newBucketList;
 
         await BucketListController.updateBucketList(request, response, next);
-        expect(BucketList.findByIdAndUpdate).toHaveBeenCalledWith(bucketlistId, newBucketList, {
+        expect(BucketList.findByIdAndUpdate).toHaveBeenCalledWith(id, newBucketList, {
             new: true,
             useFindAndModify: false
         });
@@ -150,9 +150,9 @@ describe("BucketListController.getSpecificBucketlist", () => {
     });
 
     it("should call BucketList.findById with an id", async () => {
-        request.params.bucketlistId = bucketlistId;
+        request.params.id = id;
         await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(BucketList.findById).toHaveBeenCalledWith(bucketlistId);
+        expect(BucketList.findById).toHaveBeenCalledWith(id);
     });
 
     it("should respond with status code 200, and json body", async () => {
