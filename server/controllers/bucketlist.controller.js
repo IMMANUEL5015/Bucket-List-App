@@ -23,7 +23,7 @@ exports.getBucketlists = async (request, response, next) => {
 //Update a Single Bucketlist
 exports.updateBucketList =  async (request, response, next) => {
     try{
-        const updatedBucketlist = await BucketList.findByIdAndUpdate(request.params.bucketlistId, request.body, {
+        const updatedBucketlist = await BucketList.findByIdAndUpdate(request.params.id, request.body, {
             new: true,
             useFindAndModify: false
         });
@@ -39,4 +39,21 @@ exports.updateBucketList =  async (request, response, next) => {
     }catch(error){
         next(error);
     }
+}
+
+//Get a Specific Bucketlist
+exports.getSpecificBucketlist = async(request, response, next) => {
+    try{
+        const bucketlist = await BucketList.findById(request.params.id);
+        if(bucketlist){
+            response.status(200).json(bucketlist);
+
+        }else{
+            response.status(404).json({
+                message: "This Bucketlist does not exist."
+            });
+        }
+    }catch(error){
+        next(error);
+    }  
 }

@@ -20,7 +20,7 @@ This Web Application has the features indicated below:
 ### Bucketlists
 * It allows new Bucketlists to be created by users.
 * It allows users to retrieve Bucketlists.
-* It gives users the ability to edit and update Bucketlists.
+* It gives users the ability to edit, retrieve and update Bucketlists.
 
 
 ## Technologies Used in this Project
@@ -58,13 +58,14 @@ The Users of this application are assigned a unique token upon a successful sign
 
 ### API Endpoints and their Functionality
 
-| Endpoint                      |Function                     |
-|-------------------------------|-----------------------------|
-| POST/auth/signup              | Signs up a user             |
-| POST/auth/login               | Logs in an existing user    |
-| POST/bucketlists              | Creates a new bucketlist    |
-| GET/bucketlists               | Retrieves all bucketlists   |
-| PUT/bucketlists/:bucketlistId | Edit and Update a bucketlist|
+| Endpoint                      |Function                       |
+|-------------------------------|-------------------------------|
+| POST/auth/signup              | Signs up a user               |
+| POST/auth/login               | Logs in an existing user      |
+| POST/bucketlists              | Creates a new bucketlist      |
+| GET/bucketlists               | Retrieves all bucketlists     |
+| GET/bucketlists/:bucketlistId | Retrieves a single bucketlist |
+| PUT/bucketlists/:bucketlistId | Edit and Update a bucketlist  |
  
 
 ### Sample Requests and Responses From the API
@@ -74,6 +75,7 @@ The Users of this application are assigned a unique token upon a successful sign
 - [Bucketlist](#bucketlist)
   - [Create bucketlist](#create-bucketlist)
   - [Get bucketlists](#get-bucketlists)
+  - [Get bucketlist](#get-bucketlist)
   - [Update bucketlist](#update-bucketlist)
   
  ### auth
@@ -206,6 +208,28 @@ The Users of this application are assigned a unique token upon a successful sign
         "__v": 0
     }
 ]
+```
+
+### Get bucketlist
+
+* Request
+     * Endpoint: GET: /bucketlists/5df21b5154069f17003bdd06
+
+    
+ * Response
+      * Status: 200: Ok
+      * Body (application/json)
+ 
+```
+    {
+        "_id": "5df21b5154069f17003bdd06",
+        "title": "The Colosseum",
+        "description": "I must pay a visit to the Colosseum in Rome to see where the great gladiators performed",
+        "created_by": "Voltage Diai",
+        "date_created": "2019-12-12T10:49:53.535Z",
+        "date_modified": "2019-12-12T10:49:53.535Z",
+        "__v": 0
+    }
 ```
 
 ### Update bucketlist

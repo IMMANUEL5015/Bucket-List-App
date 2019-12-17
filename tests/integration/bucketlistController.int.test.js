@@ -6,7 +6,7 @@ const Bucketlist = require('../../server/models/bucketlist.model');
 const baseEndpoint = "/bucketlists/"
 
 //id of the first Bucketlist in the database
-let BucketlistId;
+let id;
 
 describe("BucketList API Endpoints", () => {
     //Make sure that our test data is not already in the database
@@ -40,7 +40,7 @@ describe("BucketList API Endpoints", () => {
             expect(response.body.date_created).toBeTruthy();
             expect(response.body.date_modified).toBeTruthy();
 
-            BucketlistId = response.body._id;
+            id = response.body._id;
     });
 
     //Handle errors when creating a bucketlist
@@ -70,13 +70,26 @@ describe("BucketList API Endpoints", () => {
 
     //Tests for updating a matching Bucketlist
     it("should update a matching bucketlist", async () => {
-        const response = await request(app).put(baseEndpoint + BucketlistId).send({
+        const response = await request(app).put(baseEndpoint + id).send({
             "description": "I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.",
         });
 
         expect(response.body.title).toBe("The Tower");
         expect(response.body.description).toStrictEqual("I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.");
         expect(response.statusCode).toBe(200);
+    });
+
+    //Test for GETTING a SINGLE Bucketlist
+    it("should get a specific Bucketlist, by it's id", async () => {
+        const response = await request(app)
+            .get(baseEndpoint + id);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.title).toStrictEqual("The Tower");
+        expect(response.body.description).toStrictEqual("I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.");
+        expect(response.body.created_by).toStrictEqual("Immanuel Diai");
+        expect(response.body.date_created).toBeTruthy();
+        expect(response.body.date_modified).toBeTruthy();
     });
 });
 
