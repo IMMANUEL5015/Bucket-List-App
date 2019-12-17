@@ -20,7 +20,7 @@ This Web Application has the features indicated below:
 ### Bucketlists
 * It allows new Bucketlists to be created by users.
 * It allows users to retrieve Bucketlists.
-* It gives users the ability to edit, retrieve and update Bucketlists.
+* It gives users the ability to edit, retrieve, update and delete a Bucketlist.
 
 
 ## Technologies Used in this Project
@@ -64,8 +64,9 @@ The Users of this application are assigned a unique token upon a successful sign
 | POST/auth/login               | Logs in an existing user      |
 | POST/bucketlists              | Creates a new bucketlist      |
 | GET/bucketlists               | Retrieves all bucketlists     |
-| GET/bucketlists/:bucketlistId | Retrieves a single bucketlist |
-| PUT/bucketlists/:bucketlistId | Edit and Update a bucketlist  |
+| GET/bucketlists/:id           | Retrieves a single bucketlist |
+| PUT/bucketlists/:id           | Edit and Update a bucketlist  |
+| DELETE/bucketlists/:id        | Delete a bucketlist           |
  
 
 ### Sample Requests and Responses From the API
@@ -77,6 +78,8 @@ The Users of this application are assigned a unique token upon a successful sign
   - [Get bucketlists](#get-bucketlists)
   - [Get bucketlist](#get-bucketlist)
   - [Update bucketlist](#update-bucketlist)
+  - [Delete bucketlist](#delete-bucketlist)
+
   
  ### auth
    - signup
@@ -235,7 +238,7 @@ The Users of this application are assigned a unique token upon a successful sign
 ### Update bucketlist
 
 * Request
-    * Endpoint: `/bucketlists/:bucketlistId`
+    * Endpoint: `/bucketlists/:id`
     * Body: `application/json`
     
 
@@ -259,4 +262,22 @@ The Users of this application are assigned a unique token upon a successful sign
             "date_modified": "2019-12-12T10:40:43.619Z",
             "__v": 0
         }
+    ```
+
+    ### Delete bucketlist
+
+* Request
+    * Endpoint: `/bucketlists/5df21b5154069f17003bdd06`
+    
+* Response
+    * Status: `200: Ok`
+    
+    * Body: `application/json`
+    
+
+    ```
+        {
+            "message": "Bucketlist has been successfully deleted"
+        }
+
     ```    
