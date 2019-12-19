@@ -8,6 +8,8 @@ const baseEndpoint = "/bucketlists/"
 //id of the first Bucketlist in the database
 let id;
 
+//Token for testing purposes
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmJhYjM4ZWQ0MjE3MWI2ODkzZWM2MCIsImlhdCI6MTU3Njc3NDQ2MCwiZXhwIjoxNTc5MzY2NDYwfQ.7EZN5SEh-33hsUdkQaRPZAWf3f7pdR5rbeGFUNexEfA";
 describe("BucketList API Endpoints", () => {
     //Make sure that our test data is not already in the database
     beforeAll( async () => {
@@ -31,6 +33,7 @@ describe("BucketList API Endpoints", () => {
     it("should be able to create a new bucketlist successfully", async () => {
         const response = await request(app)
             .post(baseEndpoint)
+            .set('Authorization', 'Bearer ' + token)
             .send(newBucketlist);
 
             expect(response.statusCode).toBe(201)//Successfully created
@@ -47,6 +50,7 @@ describe("BucketList API Endpoints", () => {
     it("should handle errors", async () => {
         const response =  await request(app)
             .post(baseEndpoint)
+            .set('Authorization', 'Bearer ' + token)
             .send({"name": "Eat Eba"});
 
         expect(response.body).toStrictEqual({
@@ -57,7 +61,9 @@ describe("BucketList API Endpoints", () => {
 
     //Tests for GET Requests to get all the Bucketlists
     it("should be able to get all the bucketlists", async () => {
-        const response = await request(app).get(baseEndpoint);
+        const response = await request(app)
+            .get(baseEndpoint)
+            .set('Authorization', 'Bearer ' + token);
 
         expect(response.statusCode).toBe(200);
         expect(Array.isArray(response.body)).toBeTruthy();
@@ -70,7 +76,9 @@ describe("BucketList API Endpoints", () => {
 
     //Tests for updating a matching Bucketlist
     it("should be able to update a matching bucketlist", async () => {
-        const response = await request(app).put(baseEndpoint + id).send({
+        const response = await request(app).put(baseEndpoint + id)
+            .set('Authorization', 'Bearer ' + token)
+            .send({
             "description": "I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.",
         });
 
@@ -82,7 +90,8 @@ describe("BucketList API Endpoints", () => {
     //Test for GETTING a SINGLE Bucketlist
     it("should be able to get a specific Bucketlist, by it's id", async () => {
         const response = await request(app)
-            .get(baseEndpoint + id);
+            .get(baseEndpoint + id)
+            .set('Authorization', 'Bearer ' + token);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.title).toStrictEqual("The Tower");
@@ -94,7 +103,9 @@ describe("BucketList API Endpoints", () => {
 
     //Test for DELETING a SPECIFIC Bucketlist
     it("should be able to delete a single Bucketlist", async () => {
-        const response =  await request(app).delete(baseEndpoint + id);
+        const response =  await request(app)
+            .delete(baseEndpoint + id)
+            .set('Authorization', 'Bearer ' + token);
         expect(response.statusCode).toBe(200);
         expect(response.body).toStrictEqual({message: "Bucketlist has been successfully deleted"});
     });

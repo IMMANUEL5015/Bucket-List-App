@@ -35,8 +35,9 @@ const userSchema =  new mongoose.Schema({
                 return el === this.password;
             },
             message: 'Password entries are not thesame.'
-        }
-    }
+        },
+    },
+    passwordChangedAt: Date
 });
 
 //Encrypt password after password has been entered by the user but before saving it to the database

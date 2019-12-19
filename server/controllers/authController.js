@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/usermodel');
 const bcrypt = require('bcryptjs');
@@ -17,7 +18,8 @@ exports.signup = async(request, response, next) => {
             email: request.body.email,
             photo: request.body.photo,
             password: request.body.password,
-            confirmPassword: request.body.confirmPassword
+            confirmPassword: request.body.confirmPassword,
+            passwordChangedAt: request.body.passwordChangedAt
         });
 
         const token = signToken(newUser._id);
@@ -63,6 +65,56 @@ exports.login = async (request, response, next) => {
             status: 'Success',
             token
         });
+    }catch(error){
+        next(error);
+    }
+}
+
+//Protect routes from non-logged in users
+exports.protect = async (request, response, next) => {
+    try{
+        //Token needs to be in the global scope for easy accessibility
+        let token;
+        //Step 1: Grab the token from the request header if it exists
+
+        if(request.headers.authorization && request.headers.authorization.startsWith('Bearer')){
+            token = request.headers.authorization.split(' ')[1];
+        } 
+
+        //Return error if token does not exist
+        if(!token){
+           return response.status(401).json({
+                status: "Fail",
+                message: "We are unable to verify your identity. Please login to gain access"
+            });
+        }
+
+        //Step 2: Verify the token if it exists
+        const verified = await promisify(jwt.verify)(token, process.env.SECRET);
+
+        //Step 3: Check if the owner of the token (the user) still exists
+        const user = await User.findById(verified.id);
+
+        //If the user does not exist, return an error
+        if(!user){
+            return response.status(401).json({
+                status: 'Fail',
+                message: "This user does not exist."
+            });
+        }
+
+        //Step 4: Check if user has changed password since token was issued
+        const timeWhenPasswordWasModified = parseInt(user.passwordChangedAt.getTime() / 1000, 10);
+        const timeWhenTokenWasIssued = verified.iat;
+        if(timeWhenPasswordWasModified > timeWhenTokenWasIssued){
+            return response.status(401).json({
+                status: "Fail",
+                message: "Your password was modified recently. Please login again."
+            });
+        }
+
+        request.user = user //Useful later during authorization
+        next();
     }catch(error){
         next(error);
     }

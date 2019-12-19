@@ -12,15 +12,16 @@ This Web Application has the features indicated below:
 ### Authentication
 * This app utilizes JSON Web Tokens (JWT) for it's authentication purposes.
 * It generates a token upon successul signup / login and returns it to the client.
+* It verifies the token to make sure that users are authenticated before they can interact with some delicate resources.
 
 ### Users
 * It allows users to be signed up.
 * It allows users to login and obtain a token.
 
 ### Bucketlists
-* It allows new Bucketlists to be created by users.
-* It allows users to retrieve Bucketlists.
-* It gives users the ability to edit, retrieve, update and delete a Bucketlist.
+* It allows new Bucketlists to be created by authenticated users.
+* It allows authenticated users to retrieve Bucketlists.
+* It gives authenticated users the ability to edit, retrieve, update and delete a Bucketlist.
 
 
 ## Technologies Used in this Project
