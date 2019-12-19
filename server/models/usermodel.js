@@ -38,7 +38,8 @@ const userSchema =  new mongoose.Schema({
         },
     },
     passwordChangedAt: {
-       type: Date
+       type: Date,
+       default: "2019-12-18"
     }
 });
 
