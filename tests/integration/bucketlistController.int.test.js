@@ -74,6 +74,17 @@ describe("BucketList API Endpoints", () => {
         expect(response.body[0].created_by).toBeDefined();
     });
 
+    //Tests for authentication errors when trying to GET all the Bucketlists
+    it("should return an error if access token is invalid", async () => {
+        const response = await request(app)
+            .get(baseEndpoint)
+            .set('Authorization', 'Bearer ' + 'fnsfksncfksnks');
+            expect(response.body).toStrictEqual({
+                "status": "Fail",
+                "message": "You are unable to interact with this resource. Please login again."
+            });
+    });
+
     //Tests for updating a matching Bucketlist
     it("should be able to update a matching bucketlist", async () => {
         const response = await request(app).put(baseEndpoint + id)
