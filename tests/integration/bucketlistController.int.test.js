@@ -85,6 +85,8 @@ describe("BucketList API Endpoints", () => {
             });
     });
 
+
+
     //Tests for updating a matching Bucketlist
     it("should be able to update a matching bucketlist", async () => {
         const response = await request(app).put(baseEndpoint + id)
@@ -110,6 +112,18 @@ describe("BucketList API Endpoints", () => {
         expect(response.body.created_by).toStrictEqual("Immanuel Diai");
         expect(response.body.date_created).toBeTruthy();
         expect(response.body.date_modified).toBeTruthy();
+    });
+
+    //Tests for authentication errors when trying to get a single bucketlist
+    it("should return an error if a valid token has no user", async () => {
+        const response = await request(app)
+            .get(baseEndpoint + id)
+            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmJiZjQ5ZTQzNTI1MGY0YzVmNjVlZiIsImlhdCI6MTU3Njc3OTU5NywiZXhwIjoxNTc5MzcxNTk3fQ.kZI3bFVgWPsZl9l6qRHoJF_HhPU8xUR8vYN6fKrMG7s");
+
+            expect(response.body).toStrictEqual({
+                "status": "Fail",
+                "message": "This user does not exist."
+            });
     });
 
     //Test for DELETING a SPECIFIC Bucketlist

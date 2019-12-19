@@ -141,9 +141,7 @@ describe("authController.login", () => {
 });
 
 //Tests for the controller that protects routes from non-logged in users
-describe('authController.protect', () => {
-    let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmI5NmNhMWI1ZDZjMWJhNGMxNmIxNiIsImlhdCI6MTU3Njc2OTIzMCwiZXhwIjoxNTc5MzYxMjMwfQ.OIDEU1Xy2UiOnFUms9Ig8iidMesRqL9NzhHtLuWc62M";
-    
+describe('authController.protect', () => {    
     it("should be a function", () => {
         expect(typeof authController.protect).toBe("function");
     });

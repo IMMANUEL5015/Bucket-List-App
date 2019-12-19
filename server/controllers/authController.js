@@ -104,13 +104,15 @@ exports.protect = async (request, response, next) => {
         }
 
         //Step 4: Check if user has changed password since token was issued
-        const timeWhenPasswordWasModified = parseInt(user.passwordChangedAt.getTime() / 1000, 10);
-        const timeWhenTokenWasIssued = verified.iat;
-        if(timeWhenPasswordWasModified > timeWhenTokenWasIssued){
-            return response.status(401).json({
-                status: "Fail",
-                message: "Your password was modified recently. Please login again."
-            });
+        if(user.passwordChangedAt){
+            let timeWhenPasswordWasModified = parseInt(user.passwordChangedAt.getTime() / 1000, 10);
+            const timeWhenTokenWasIssued = verified.iat;
+            if(timeWhenPasswordWasModified > timeWhenTokenWasIssued){
+                return response.status(401).json({
+                    status: "Fail",
+                    message: "Your password was modified recently. Please login again."
+                });
+            }
         }
 
         request.user = user //Useful later during authorization
