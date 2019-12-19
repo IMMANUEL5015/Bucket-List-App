@@ -100,6 +100,20 @@ describe("BucketList API Endpoints", () => {
         expect(response.statusCode).toBe(200);
     });
 
+    //Tests for authentication errors when trying to update a Bucketlist
+    it("should return an error when a user is using an old token", async () => {
+        const response = await request(app).put(baseEndpoint + id)
+            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmJhNjI5NTJkNjliMTI2YzRmNGFjZCIsImlhdCI6MTU3Njc4MDY4NCwiZXhwIjoxNTc5MzcyNjg0fQ.39-8VdVXzTc6mHkxMCRHjGoY-KQo7cVYihD3tIjqek4")
+            .send({
+            "description": "I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.",
+        });
+
+        expect(response.body).toStrictEqual({
+            "status": "Fail",
+            "message": "Your password was modified recently. Please login again."
+        });
+    });
+
     //Test for GETTING a SINGLE Bucketlist
     it("should be able to get a specific Bucketlist, by it's id", async () => {
         const response = await request(app)
