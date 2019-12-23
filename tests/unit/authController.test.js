@@ -139,3 +139,21 @@ describe("authController.login", () => {
         expect(next).toHaveBeenCalledWith(errorMessage);
     });
 });
+
+//Tests for the controller that protects routes from non-logged in users
+describe('authController.protect', () => {    
+    it("should be a function", () => {
+        expect(typeof authController.protect).toBe("function");
+    });
+
+    it("should prompt the user to login, if no token is found", async () => {
+        request.headers = {authorization: "there is no token"};
+        await authController.protect(request, response, next);
+        expect(response.statusCode).toBe(401);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
+            message: "We are unable to verify your identity. Please login to gain access"
+        });
+    });
+});

@@ -35,7 +35,11 @@ const userSchema =  new mongoose.Schema({
                 return el === this.password;
             },
             message: 'Password entries are not thesame.'
-        }
+        },
+    },
+    passwordChangedAt: {
+       type: Date,
+       default: "2019-12-18"
     }
 });
 
