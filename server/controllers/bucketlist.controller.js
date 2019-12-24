@@ -18,18 +18,10 @@ exports.createBucketList = async (request, response, next) => {
             }else{
                 //Associate the logged in user with the Bucketlist
                 await User.findById(request.user._id, async(error, user) => {
-                    if(error){
-                        next(error);
-                    }else{
-                        await user.bucketlists.push(newBucketlist);
-                        await user.save({validateBeforeSave: false}, (error, updatedUser) => {
-                            if(error){
-                                next(error);
-                            }else{
-                                response.status(201).json(newBucketlist);       
-                            }
-                        });
-                    }
+                    await user.bucketlists.push(newBucketlist);
+                    await user.save({validateBeforeSave: false}, (error, updatedUser) => {
+                        response.status(201).json(newBucketlist);       
+                    });
                 });
             }   
         });
