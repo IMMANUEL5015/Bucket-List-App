@@ -22,6 +22,7 @@ This Web Application has the features indicated below:
 * It allows new Bucketlists to be created by authenticated users.
 * It allows authenticated users to retrieve Bucketlists.
 * It gives authenticated users the ability to edit, retrieve, update and delete a Bucketlist.
+* It associates individual Bucketlists with their respective creators.
 
 
 ## Technologies Used in this Project
@@ -113,6 +114,7 @@ The Users of this application are assigned a unique token upon a successful sign
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZWY2OTA1M2MzYTg3MWQ0NDQ5MDk5MSIsImlhdCI6MTU3NTk3MTA4NSwiZXhwIjoxNTc4NTYzMDg1fQ.sH2Sxh-26su6diHwI2c0qmskKx9uE3dr3yzhNscAK9w",
     "data": {
         "user": {
+            "bucketlists": [],
             "_id": "5def69053c3a871d44490991",
             "username": "uniqueUsername",
             "fullName": "Unique User",
