@@ -2,21 +2,19 @@ const request = require('supertest');
 const app = require('../../server/routes/index');
 const newBucketlist = require('../mock-data/integration/new-bucketlist-int.json');
 const Bucketlist = require('../../server/models/bucketlist.model');
-
+const User = require('../../server/models/usermodel');
 const baseEndpoint = "/bucketlists/"
 
 //id of the first Bucketlist in the database
 let id;
 
 //Token for testing purposes
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmJhYjM4ZWQ0MjE3MWI2ODkzZWM2MCIsImlhdCI6MTU3Njc3NDQ2MCwiZXhwIjoxNTc5MzY2NDYwfQ.7EZN5SEh-33hsUdkQaRPZAWf3f7pdR5rbeGFUNexEfA";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlMDE2YmMxYjQzNzI2MGYzYzRlNzA2NiIsImlhdCI6MTU3NzE1MTQyOCwiZXhwIjoxNTc5NzQzNDI4fQ.itVqB92MHDDSmpRh2pRgPLX5OVmJywQnqOmULtTY2NA";
 describe("BucketList API Endpoints", () => {
     //Make sure that our test data is not already in the database
     beforeAll( async () => {
         await Bucketlist.findOneAndDelete({
              title: "The Tower"   
-        }, () => {
-            console.log('Bucketlist deleted!');
         });
     });
 
@@ -24,10 +22,20 @@ describe("BucketList API Endpoints", () => {
     afterAll( async () => {
         await Bucketlist.findOneAndDelete({
              title: "The Tower"   
-        }, () => {
-            console.log('Bucketlist deleted!');
         });
     });
+
+    //Making sure that the test user does not remain associated with the test data
+    afterAll(async () => {
+        User.findById('5e016bc1b437260f3c4e7066', async function(error, user){
+            if(error){
+                console.log(error);
+            }else{
+                await user.bucketlists.splice(1, 19);
+                await user.save({validateBeforeSave: false});
+            }
+        });
+    });    
 
     //Creating a bucketlist
     it("should be able to create a new bucketlist successfully", async () => {
@@ -39,7 +47,7 @@ describe("BucketList API Endpoints", () => {
             expect(response.statusCode).toBe(201)//Successfully created
             expect(response.body.title).toStrictEqual("The Tower");
             expect(response.body.description).toStrictEqual("I intend to visit the Leaning Tower of Pisa.");
-            expect(response.body.created_by).toStrictEqual("Immanuel Diai");
+            expect(response.body.created_by).toStrictEqual("Benjamin Diai");
             expect(response.body.date_created).toBeTruthy();
             expect(response.body.date_modified).toBeTruthy();
 
@@ -55,7 +63,7 @@ describe("BucketList API Endpoints", () => {
 
         expect(response.body).toStrictEqual({
             "status": "error",
-            "message": "BucketList validation failed: created_by: Please enter your unique username, description: A bucketlist must have a description, title: This is a required field"
+            "message": "BucketList validation failed: title: This is a required field, description: A bucketlist must have a description"
         });
     });
 
@@ -103,7 +111,7 @@ describe("BucketList API Endpoints", () => {
     //Tests for authentication errors when trying to update a Bucketlist
     it("should return an error when a user is using an old token", async () => {
         const response = await request(app).put(baseEndpoint + id)
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmJhNjI5NTJkNjliMTI2YzRmNGFjZCIsImlhdCI6MTU3Njc4MDY4NCwiZXhwIjoxNTc5MzcyNjg0fQ.39-8VdVXzTc6mHkxMCRHjGoY-KQo7cVYihD3tIjqek4")
+            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlMDIyNTgzNzIwOWExMWNlMGE1YTlhYiIsImlhdCI6MTU3NzE5ODk4MiwiZXhwIjoxNTc5NzkwOTgyfQ.PF_FmBi_G1TCcpvklZ_UDqX7n5B-4RNl6kpNWq-A6Uc")
             .send({
             "description": "I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.",
         });
@@ -123,7 +131,7 @@ describe("BucketList API Endpoints", () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.title).toStrictEqual("The Tower");
         expect(response.body.description).toStrictEqual("I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.");
-        expect(response.body.created_by).toStrictEqual("Immanuel Diai");
+        expect(response.body.created_by).toStrictEqual("Benjamin Diai");
         expect(response.body.date_created).toBeTruthy();
         expect(response.body.date_modified).toBeTruthy();
     });

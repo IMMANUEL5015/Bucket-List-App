@@ -37,6 +37,12 @@ const userSchema =  new mongoose.Schema({
             message: 'Password entries are not thesame.'
         },
     },
+    bucketlists: [
+        {
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'BucketList'
+        }
+    ],
     passwordChangedAt: {
        type: Date,
        default: "2019-12-18"

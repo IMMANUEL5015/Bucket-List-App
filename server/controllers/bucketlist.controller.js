@@ -1,13 +1,41 @@
 const BucketList = require('../models/bucketlist.model');
+const User = require('../models/usermodel');
 
 //Create a new Bucketlist
 exports.createBucketList = async (request, response, next) => {
+    //Data Association using Object referencing
     try{
-        const createdBucketList = await BucketList.create(request.body);
-        response.status(201).json(createdBucketList);
+        //Create Bucketlist
+        await BucketList.create({
+            title: request.body.title,
+            description: request.body.description,
+            date_created: request.body.date_created, //Automatically Generated
+            date_modified: request.body.date_modified, //Automatically Generated
+            created_by: request.user.fullName //Automatically Generated
+        }, async (error, newBucketlist) => {
+            if(error){
+                next(error);
+            }else{
+                //Associate the logged in user with the Bucketlist
+                await User.findById(request.user._id, async(error, user) => {
+                    if(error){
+                        next(error);
+                    }else{
+                        await user.bucketlists.push(newBucketlist);
+                        await user.save({validateBeforeSave: false}, (error, updatedUser) => {
+                            if(error){
+                                next(error);
+                            }else{
+                                response.status(201).json(newBucketlist);       
+                            }
+                        });
+                    }
+                });
+            }   
+        });
     }catch(error){
         next(error);
-    }
+    } 
 };
 
 //Get all Bucketlists
