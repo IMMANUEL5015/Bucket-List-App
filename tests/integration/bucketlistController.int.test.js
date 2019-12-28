@@ -3,13 +3,14 @@ const app = require('../../server/routes/index');
 const newBucketlist = require('../mock-data/integration/new-bucketlist-int.json');
 const Bucketlist = require('../../server/models/bucketlist.model');
 const User = require('../../server/models/usermodel');
-const baseEndpoint = "/bucketlists/"
+const baseEndpoint = "/users/5e016bc1b437260f3c4e7066/bucketlists/"
 
 //id of the first Bucketlist in the database
 let id;
 
 //Token for testing purposes
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlMDE2YmMxYjQzNzI2MGYzYzRlNzA2NiIsImlhdCI6MTU3NzE1MTQyOCwiZXhwIjoxNTc5NzQzNDI4fQ.itVqB92MHDDSmpRh2pRgPLX5OVmJywQnqOmULtTY2NA";
+const token = process.env.TEST_TOKEN;
+
 describe("BucketList API Endpoints", () => {
     //Make sure that our test data is not already in the database
     beforeAll( async () => {
@@ -63,7 +64,7 @@ describe("BucketList API Endpoints", () => {
 
         expect(response.body).toStrictEqual({
             "status": "error",
-            "message": "BucketList validation failed: title: This is a required field, description: A bucketlist must have a description"
+            "message": "BucketList validation failed: description: A bucketlist must have a description, title: This is a required field"
         });
     });
 
@@ -111,7 +112,7 @@ describe("BucketList API Endpoints", () => {
     //Tests for authentication errors when trying to update a Bucketlist
     it("should return an error when a user is using an old token", async () => {
         const response = await request(app).put(baseEndpoint + id)
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlMDIyNTgzNzIwOWExMWNlMGE1YTlhYiIsImlhdCI6MTU3NzE5ODk4MiwiZXhwIjoxNTc5NzkwOTgyfQ.PF_FmBi_G1TCcpvklZ_UDqX7n5B-4RNl6kpNWq-A6Uc")
+            .set('Authorization', 'Bearer ' + process.env.OLD_TOKEN)
             .send({
             "description": "I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.",
         });
@@ -140,7 +141,7 @@ describe("BucketList API Endpoints", () => {
     it("should return an error if a valid token has no user", async () => {
         const response = await request(app)
             .get(baseEndpoint + id)
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmJiZjQ5ZTQzNTI1MGY0YzVmNjVlZiIsImlhdCI6MTU3Njc3OTU5NywiZXhwIjoxNTc5MzcxNTk3fQ.kZI3bFVgWPsZl9l6qRHoJF_HhPU8xUR8vYN6fKrMG7s");
+            .set('Authorization', 'Bearer ' + process.env.TOKEN_WITH_UNKNOWN_USER);
 
             expect(response.body).toStrictEqual({
                 "status": "Fail",

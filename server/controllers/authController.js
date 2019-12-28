@@ -19,7 +19,8 @@ exports.signup = async(request, response, next) => {
             photo: request.body.photo,
             password: request.body.password,
             confirmPassword: request.body.confirmPassword,
-            passwordChangedAt: request.body.passwordChangedAt
+            passwordChangedAt: request.body.passwordChangedAt,
+            bucketlists: []
         });
 
         const token = signToken(newUser._id);

@@ -3,27 +3,40 @@ const User = require('../models/usermodel');
 
 //Create a new Bucketlist
 exports.createBucketList = async (request, response, next) => {
-    //Data Association using Object referencing
-    //Create Bucketlist
-    await BucketList.create({
-        title: request.body.title,
-        description: request.body.description,
-        date_created: request.body.date_created, //Automatically Generated
-        date_modified: request.body.date_modified, //Automatically Generated
-        created_by: request.user.fullName //Automatically Generated
-    }, async (error, newBucketlist) => {
-        if(error){
-            next(error);
-        }else{
-            //Associate the logged in user with the Bucketlist
-            await User.findById(request.user._id, async(error, user) => {
-                await user.bucketlists.push(newBucketlist);
-                await user.save({validateBeforeSave: false}, (error, updatedUser) => {
-                    response.status(201).json(newBucketlist);       
-                });
+    try{
+        //Find the User who intends to create a new Bucketlist
+        const user = await User.findById(request.params.userid);
+        if(!user){//Error if user is unknown
+            return response.status(401).json({
+                message: "You are not allowed to perform this action."
             });
-        }   
-    });
+        }
+        //Create the Bucketlist
+        request.body.created_by = user.fullName;
+        const bucketlist =  await BucketList.create(request.body);
+        if(!bucketlist){//Error if Bucketlist is not created
+            return response.status(500).json({
+                message: "Failed to create Bucketlist."
+            });   
+        }
+
+        //Associate the created Bucketlist with the user
+        user.bucketlists.push(bucketlist);
+        const updatedUser = await User.findByIdAndUpdate(request.params.userid, user, {
+            new: true,
+            useFindAndModify: false
+        });
+        if(!updatedUser){//Error if the user is not associated with the Bucketlist
+            return response.status(500).json({
+                message: "Failed to Associate the User with the Bucketlist."
+            });
+        }
+
+        //Respond with the newly created Bucketlist
+        response.status(201).json(bucketlist);
+    }catch(error){
+        next(error);
+    }
 };
 
 //Get all Bucketlists

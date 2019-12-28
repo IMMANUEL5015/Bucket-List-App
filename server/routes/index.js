@@ -11,7 +11,7 @@ mongodb.connect();
 
 app.use(express.json());
 
-app.use('/bucketlists', bucketlistRoutes);
+app.use('/users', bucketlistRoutes);
 app.use('/auth', authRoutes);
 
 app.get('/health', (request, response) => {

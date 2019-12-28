@@ -3,17 +3,23 @@ const BucketListController = require('../../server/controllers/bucketlist.contro
 const BucketList = require('../../server/models/bucketlist.model');
 const httpMocks = require('node-mocks-http');
 const newBucketList = require('../mock-data/unit/new-bucketlist-unit.json');
-const allBucketLists = require('../mock-data/unit/all-bucketlists.json')
+const allBucketLists = require('../mock-data/unit/all-bucketlists.json');
+const User = require('../../server/models/usermodel');
+const newUser = require('../mock-data/unit/new-user-unit.json');
+const userWithBucketlist = require('../mock-data/unit/user-with-bucketlist.json');
 
 
 //Mock the BucketList Model methods
 jest.mock('../../server/models/bucketlist.model');
+jest.mock('../../server/models/usermodel');
 
 //re-initialize variables before each test
 let request, response, next;
 
+//Simulated user id for testing purposes
+let userId = "5e0225837209a11ce0a5a9ab";
 //Simulated Bucketlist id for testing purposes
-let id = "5def4ed3921dc21414ac979c";
+let bucketlistid = "5def4ed3921dc21414ac979c";
 
 //Create a fake version of the request and response objects
 beforeEach(() => {
@@ -55,17 +61,80 @@ describe("BucketlistController.getBucketlists", () => {
 
 //Unit tests for creating bucketlists
 describe('BucketListController.createBucketList', () => {
-    beforeEach(() => {
-        request.body.title = newBucketList.title;
-        request.body.description = newBucketList.description;
-        request.body.created_by = newBucketList.created_by;
-        request.body.date_created = newBucketList.date_created;
-        request.body.date_modified = newBucketList.modified;
+    it("should be a function", () => {
+        expect(typeof BucketListController.createBucketList).toBe('function');
+    });
+    it("should find the user who is creating the bucketlist", async () => {
+        request.params.userid = userId;
+        await BucketListController.createBucketList(request, response, next);
+        expect(User.findById).toHaveBeenCalledWith(userId);
+    });
+    it("should return an error if user is not found", async () => {
+        User.findById.mockReturnValue(null);
+        await BucketListController.createBucketList(request, response, next);
+        expect(response.statusCode).toBe(401);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            message: "You are not allowed to perform this action."
+        });
+    });
+    it("should call Bucketlist.create with valid data", async () => {
+        request.body = newBucketList;
+        User.findById.mockReturnValue(newUser);
+        await BucketListController.createBucketList(request, response, next);
+        expect(BucketList.create).toHaveBeenCalledWith(newBucketList);
+    }); 
+    it("should return an error if user fails to create the bucketlist", async () => {
+        User.findById.mockReturnValue(newUser);
+        BucketList.create.mockReturnValue(null);
+        await BucketListController.createBucketList(request, response, next);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            message: "Failed to create Bucketlist."
+        });
     });
 
-    //function for creating a bucket list should exist.
-    test('It should have a createBucketList function', () => {
-        expect(typeof BucketListController.createBucketList).toBe('function');
+    it("should associate the newly created Bucketlist with the user", async () => {
+        request.params.userid = userId;
+        User.findById.mockReturnValue(newUser);
+        BucketList.create.mockReturnValue(newBucketList);
+        await BucketListController.createBucketList(request, response, next);
+        expect(User.findByIdAndUpdate).toHaveBeenCalledWith(userId, userWithBucketlist, {
+            new : true,
+            useFindAndModify: false
+        });
+    });
+
+    it("should return an error if it fails to associate the user with the created bucketlist", async () => {
+        User.findById.mockReturnValue(newUser);
+        BucketList.create.mockReturnValue(newBucketList);
+        User.findByIdAndUpdate.mockReturnValue(null);
+        await BucketListController.createBucketList(request, response, next);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response.statusCode).toBe(500);
+        expect(response._getJSONData()).toStrictEqual({
+            message: "Failed to Associate the User with the Bucketlist."
+        });
+    });
+
+    it("should respond with the newly created Bucketlist and a status code of 201, if all goes well", async () => {
+        User.findById.mockReturnValue(newUser);
+        BucketList.create.mockReturnValue(newBucketList);
+        User.findByIdAndUpdate.mockReturnValue(userWithBucketlist);
+        await BucketListController.createBucketList(request, response, next);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response.statusCode).toBe(201);
+        expect(response._getJSONData()).toStrictEqual(newBucketList);
+    });
+
+    it("should handle all other kinds of error", async () => {
+        User.findById.mockReturnValue(newUser);
+        BucketList.create.mockReturnValue(newBucketList);
+        const errorMessage = {message: "You are unable to perform this action at this time, please try again later"};
+        const rejectedPromise = Promise.reject(errorMessage);
+        User.findByIdAndUpdate.mockReturnValue(rejectedPromise);
+        await BucketListController.createBucketList(request, response, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
     });
 });
 
@@ -76,11 +145,11 @@ describe("BucketListController.updateBucketList", () => {
     });
 
     it("should call BucketList.FindByIdAndUpdate", async () => {
-        request.params.id = id;
+        request.params.id = bucketlistid;
         request.body = newBucketList;
 
         await BucketListController.updateBucketList(request, response, next);
-        expect(BucketList.findByIdAndUpdate).toHaveBeenCalledWith(id, newBucketList, {
+        expect(BucketList.findByIdAndUpdate).toHaveBeenCalledWith(bucketlistid, newBucketList, {
             new: true,
             useFindAndModify: false
         });
@@ -125,9 +194,9 @@ describe("BucketListController.getSpecificBucketlist", () => {
     });
 
     it("should call BucketList.findById with an id", async () => {
-        request.params.id = id;
+        request.params.id = bucketlistid;
         await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(BucketList.findById).toHaveBeenCalledWith(id);
+        expect(BucketList.findById).toHaveBeenCalledWith(bucketlistid);
     });
 
     it("should respond with status code 200, and json body", async () => {
@@ -167,9 +236,9 @@ describe("BucketlistController.deleteBucketlist", () => {
     });
 
     it("should call BucketList.findByIdAndDelete with an id", async () => {
-        request.params.id = id;
+        request.params.id = bucketlistid;
         await BucketListController.deleteBucketlist(request, response, next);
-        expect(BucketList.findByIdAndDelete).toHaveBeenCalledWith(id);
+        expect(BucketList.findByIdAndDelete).toHaveBeenCalledWith(bucketlistid);
     });
 
     it("should return a status code of 200 and a success message", async () => {
