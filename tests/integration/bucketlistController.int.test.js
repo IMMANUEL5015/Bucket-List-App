@@ -2,21 +2,20 @@ const request = require('supertest');
 const app = require('../../server/routes/index');
 const newBucketlist = require('../mock-data/integration/new-bucketlist-int.json');
 const Bucketlist = require('../../server/models/bucketlist.model');
-
-const baseEndpoint = "/bucketlists/"
+const User = require('../../server/models/usermodel');
+const baseEndpoint = "/users/5e016bc1b437260f3c4e7066/bucketlists/"
 
 //id of the first Bucketlist in the database
 let id;
 
 //Token for testing purposes
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmJhYjM4ZWQ0MjE3MWI2ODkzZWM2MCIsImlhdCI6MTU3Njc3NDQ2MCwiZXhwIjoxNTc5MzY2NDYwfQ.7EZN5SEh-33hsUdkQaRPZAWf3f7pdR5rbeGFUNexEfA";
+const token = process.env.TEST_TOKEN;
+
 describe("BucketList API Endpoints", () => {
     //Make sure that our test data is not already in the database
     beforeAll( async () => {
         await Bucketlist.findOneAndDelete({
              title: "The Tower"   
-        }, () => {
-            console.log('Bucketlist deleted!');
         });
     });
 
@@ -24,10 +23,20 @@ describe("BucketList API Endpoints", () => {
     afterAll( async () => {
         await Bucketlist.findOneAndDelete({
              title: "The Tower"   
-        }, () => {
-            console.log('Bucketlist deleted!');
         });
     });
+
+    //Making sure that the test user does not remain associated with the test data
+    afterAll(async () => {
+        User.findById('5e016bc1b437260f3c4e7066', async function(error, user){
+            if(error){
+                console.log(error);
+            }else{
+                await user.bucketlists.splice(1, 19);
+                await user.save({validateBeforeSave: false});
+            }
+        });
+    });    
 
     //Creating a bucketlist
     it("should be able to create a new bucketlist successfully", async () => {
@@ -39,7 +48,7 @@ describe("BucketList API Endpoints", () => {
             expect(response.statusCode).toBe(201)//Successfully created
             expect(response.body.title).toStrictEqual("The Tower");
             expect(response.body.description).toStrictEqual("I intend to visit the Leaning Tower of Pisa.");
-            expect(response.body.created_by).toStrictEqual("Immanuel Diai");
+            expect(response.body.created_by).toStrictEqual("Benjamin Diai");
             expect(response.body.date_created).toBeTruthy();
             expect(response.body.date_modified).toBeTruthy();
 
@@ -55,7 +64,7 @@ describe("BucketList API Endpoints", () => {
 
         expect(response.body).toStrictEqual({
             "status": "error",
-            "message": "BucketList validation failed: created_by: Please enter your unique username, description: A bucketlist must have a description, title: This is a required field"
+            "message": "BucketList validation failed: description: A bucketlist must have a description, title: This is a required field"
         });
     });
 
@@ -103,7 +112,7 @@ describe("BucketList API Endpoints", () => {
     //Tests for authentication errors when trying to update a Bucketlist
     it("should return an error when a user is using an old token", async () => {
         const response = await request(app).put(baseEndpoint + id)
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmJhNjI5NTJkNjliMTI2YzRmNGFjZCIsImlhdCI6MTU3Njc4MDY4NCwiZXhwIjoxNTc5MzcyNjg0fQ.39-8VdVXzTc6mHkxMCRHjGoY-KQo7cVYihD3tIjqek4")
+            .set('Authorization', 'Bearer ' + process.env.OLD_TOKEN)
             .send({
             "description": "I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.",
         });
@@ -123,7 +132,7 @@ describe("BucketList API Endpoints", () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.title).toStrictEqual("The Tower");
         expect(response.body.description).toStrictEqual("I have the goal of paying a visit to the remarkable Leaning Tower of Pisa.");
-        expect(response.body.created_by).toStrictEqual("Immanuel Diai");
+        expect(response.body.created_by).toStrictEqual("Benjamin Diai");
         expect(response.body.date_created).toBeTruthy();
         expect(response.body.date_modified).toBeTruthy();
     });
@@ -132,7 +141,7 @@ describe("BucketList API Endpoints", () => {
     it("should return an error if a valid token has no user", async () => {
         const response = await request(app)
             .get(baseEndpoint + id)
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmJiZjQ5ZTQzNTI1MGY0YzVmNjVlZiIsImlhdCI6MTU3Njc3OTU5NywiZXhwIjoxNTc5MzcxNTk3fQ.kZI3bFVgWPsZl9l6qRHoJF_HhPU8xUR8vYN6fKrMG7s");
+            .set('Authorization', 'Bearer ' + process.env.TOKEN_WITH_UNKNOWN_USER);
 
             expect(response.body).toStrictEqual({
                 "status": "Fail",

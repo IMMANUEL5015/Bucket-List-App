@@ -22,6 +22,7 @@ This Web Application has the features indicated below:
 * It allows new Bucketlists to be created by authenticated users.
 * It allows authenticated users to retrieve Bucketlists.
 * It gives authenticated users the ability to edit, retrieve, update and delete a Bucketlist.
+* It associates individual Bucketlists with their respective creators.
 
 
 ## Technologies Used in this Project
@@ -113,6 +114,7 @@ The Users of this application are assigned a unique token upon a successful sign
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZWY2OTA1M2MzYTg3MWQ0NDQ5MDk5MSIsImlhdCI6MTU3NTk3MTA4NSwiZXhwIjoxNTc4NTYzMDg1fQ.sH2Sxh-26su6diHwI2c0qmskKx9uE3dr3yzhNscAK9w",
     "data": {
         "user": {
+            "bucketlists": [],
             "_id": "5def69053c3a871d44490991",
             "username": "uniqueUsername",
             "fullName": "Unique User",
@@ -154,14 +156,13 @@ The Users of this application are assigned a unique token upon a successful sign
 ### Create bucketlist
 
 * Request
-     * Endpoint: POST: /bucketlists
+     * Endpoint: POST: /users/:userid/bucketlists
      * Body (application/json)
      
     ```
     {
     "title":"The Tower",
-    "description": "I intend to visit the leaning tower of pisa in Italy before I die.",
-    "created_by": "Unique username"
+    "description": "I intend to visit the leaning tower of pisa in Italy before I die."
     }
     ```
     
@@ -171,12 +172,12 @@ The Users of this application are assigned a unique token upon a successful sign
  
 ```
   {
-    "_id": "5df1dd39a492e71344f691a7",
+    "_id": "5e03e71bcf6db21efc6fa625",
     "title": "The Tower",
-    "description": "I intend to visit the leaning tower of pisa in Italy before I die.",
-    "created_by": "Unique username",
-    "date_created": "2019-12-12T06:24:57.915Z",
-    "date_modified": "2019-12-12T06:24:57.915Z",
+    "description": "I intend to visit the Leaning Tower of Pisa.",
+    "created_by": "Benjamin Diai",
+    "date_created": "2019-12-28T05:24:43.518Z",
+    "date_modified": "2019-12-28T05:24:43.518Z",
     "__v": 0
 }
 ```
@@ -184,7 +185,7 @@ The Users of this application are assigned a unique token upon a successful sign
 ### Get bucketlists
 
 * Request
-     * Endpoint: GET: /bucketlists
+     * Endpoint: GET: /users/:userid/bucketlists
 
     
  * Response
@@ -217,7 +218,7 @@ The Users of this application are assigned a unique token upon a successful sign
 ### Get bucketlist
 
 * Request
-     * Endpoint: GET: /bucketlists/5df21b5154069f17003bdd06
+     * Endpoint: GET: /users/:userid//bucketlists/:id
 
     
  * Response
@@ -239,7 +240,7 @@ The Users of this application are assigned a unique token upon a successful sign
 ### Update bucketlist
 
 * Request
-    * Endpoint: `/bucketlists/:id`
+    * Endpoint: PUT `/users/:userid//bucketlists/:id`
     * Body: `application/json`
     
 
@@ -268,7 +269,7 @@ The Users of this application are assigned a unique token upon a successful sign
     ### Delete bucketlist
 
 * Request
-    * Endpoint: `/bucketlists/5df21b5154069f17003bdd06`
+    * Endpoint: DELETE `/users/:userid/bucketlists/:id`
     
 * Response
     * Status: `200: Ok`

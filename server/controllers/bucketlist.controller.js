@@ -1,10 +1,39 @@
 const BucketList = require('../models/bucketlist.model');
+const User = require('../models/usermodel');
 
 //Create a new Bucketlist
 exports.createBucketList = async (request, response, next) => {
     try{
-        const createdBucketList = await BucketList.create(request.body);
-        response.status(201).json(createdBucketList);
+        //Find the User who intends to create a new Bucketlist
+        const user = await User.findById(request.params.userid);
+        if(!user){//Error if user is unknown
+            return response.status(401).json({
+                message: "You are not allowed to perform this action."
+            });
+        }
+        //Create the Bucketlist
+        request.body.created_by = user.fullName;
+        const bucketlist =  await BucketList.create(request.body);
+        if(!bucketlist){//Error if Bucketlist is not created
+            return response.status(500).json({
+                message: "Failed to create Bucketlist."
+            });   
+        }
+
+        //Associate the created Bucketlist with the user
+        user.bucketlists.push(bucketlist);
+        const updatedUser = await User.findByIdAndUpdate(request.params.userid, user, {
+            new: true,
+            useFindAndModify: false
+        });
+        if(!updatedUser){//Error if the user is not associated with the Bucketlist
+            return response.status(500).json({
+                message: "Failed to Associate the User with the Bucketlist."
+            });
+        }
+
+        //Respond with the newly created Bucketlist
+        response.status(201).json(bucketlist);
     }catch(error){
         next(error);
     }
