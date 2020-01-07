@@ -18,11 +18,17 @@ This Web Application has the features indicated below:
 * It allows users to be signed up.
 * It allows users to login and obtain a token.
 
+### Roles
+* It ensures that users have roles.
+* It ensures user roles could be admin or regular.
+
+
 ### Bucketlists
-* It allows new Bucketlists to be created by authenticated users.
-* It allows authenticated users to retrieve Bucketlists.
-* It gives authenticated users the ability to edit, retrieve, update and delete a Bucketlist.
+* It allows new Bucketlists to be created by both admin and regular authenticated users. 
 * It associates individual Bucketlists with their respective creators.
+* It allows authenticated regular users to retrieve only their own Bucketlists.
+* It allows authenticated admin users to retrieve all Bucketlists.
+* It gives authenticated users the ability to retrieve, update and delete a specific Bucketlist.
 
 
 ## Technologies Used in this Project

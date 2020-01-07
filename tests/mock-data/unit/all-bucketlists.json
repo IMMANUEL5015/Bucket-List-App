@@ -12,5 +12,19 @@
         "date_created": "2019-08-08T08:22:55.160Z",
         "date_modified": "2019-08-08T08:22:55.160Z",
         "created_by": "Immanuel Diai"
+    },
+    {
+        "title":"Visit Israel",
+        "description": "I must visit the Holy Land, where christ lived and taught.",
+        "date_created": "2019-08-08T08:22:55.160Z",
+        "date_modified": "2019-08-08T08:22:55.160Z",
+        "created_by": "Raphael Diai"
+    }, 
+    {
+        "title":"The Arabian Adventure",
+        "description": "I must travel to the United States of America this year.",
+        "date_created": "2019-08-08T08:22:55.160Z",
+        "date_modified": "2019-08-08T08:22:55.160Z",
+        "created_by": "Raphael Diai"
     }
 ]

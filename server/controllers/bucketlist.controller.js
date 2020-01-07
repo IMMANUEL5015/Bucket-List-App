@@ -1,7 +1,7 @@
 const BucketList = require('../models/bucketlist.model');
 const User = require('../models/usermodel');
 
-//Create a new Bucketlist
+//Create a new Bucketlist - Both administrators and normal users can create a new bucketlist
 exports.createBucketList = async (request, response, next) => {
     try{
         //Find the User who intends to create a new Bucketlist
@@ -39,11 +39,34 @@ exports.createBucketList = async (request, response, next) => {
     }
 };
 
-//Get all Bucketlists
+//Get all Bucketlists 
 exports.getBucketlists = async (request, response, next) => {
     try{
-        const allBucketlists = await BucketList.find({});
-        response.status(200).json(allBucketlists);
+        let allBucketlists = [];
+
+        //Find the user who intends to retrieve all the bucketlists
+        let user = await User.findById(request.params.userid);
+    
+        if(!user){//Error if no user is found
+            return response.status(404).json({ 
+                status: "Fail",
+                message: "We are unable to verify your identity."
+            });
+        }
+    
+        //If the user is found:
+        if(user.role == "admin"){
+            //An admin user can get all the bucketlists
+            allBucketlists = await BucketList.find({});
+            return response.status(200).json(allBucketlists);  
+        }else{
+            //Normal users can get only all of their own associated bucketlists
+            const singleUserBucketlists = user.bucketlists;
+            for(var i = 0; i < singleUserBucketlists.length; i++){
+                allBucketlists.push(await BucketList.findById(singleUserBucketlists[i]));
+            }
+            return response.status(200).json(allBucketlists);
+        }
     }catch(error){
         next(error);
     }
@@ -52,6 +75,7 @@ exports.getBucketlists = async (request, response, next) => {
 //Update a Single Bucketlist
 exports.updateBucketList =  async (request, response, next) => {
     try{
+        request.body.date_modified = Date.now();
         const updatedBucketlist = await BucketList.findByIdAndUpdate(request.params.id, request.body, {
             new: true,
             useFindAndModify: false

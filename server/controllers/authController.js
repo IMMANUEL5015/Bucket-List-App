@@ -20,7 +20,8 @@ exports.signup = async(request, response, next) => {
             password: request.body.password,
             confirmPassword: request.body.confirmPassword,
             passwordChangedAt: request.body.passwordChangedAt,
-            bucketlists: []
+            bucketlists: [],
+            role: request.body.role
         });
 
         const token = signToken(newUser._id);
@@ -118,5 +119,18 @@ exports.protect = async (request, response, next) => {
         next();
     }catch(error){
         next(error);
+    }
+}
+
+//User Roles and Permissions
+exports.authorize = (...roles) => {
+    return (request, response, next) => {
+        if(!roles.includes(request.user.role)){
+            return response.status(403).json({
+                status: "fail",
+                message: "You do not have permission to access this resource."
+            });
+        }
+        next();
     }
 }

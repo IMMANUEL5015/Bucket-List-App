@@ -3,9 +3,11 @@ const BucketListController = require('../../server/controllers/bucketlist.contro
 const BucketList = require('../../server/models/bucketlist.model');
 const httpMocks = require('node-mocks-http');
 const newBucketList = require('../mock-data/unit/new-bucketlist-unit.json');
+const oneUserBucketLists = require('../mock-data/unit/one-user-bucketlists-unit.json');
 const allBucketLists = require('../mock-data/unit/all-bucketlists.json');
 const User = require('../../server/models/usermodel');
 const newUser = require('../mock-data/unit/new-user-unit.json');
+const adminUser = require('../mock-data/unit/new-admin-user.json');
 const userWithBucketlist = require('../mock-data/unit/user-with-bucketlist.json');
 
 
@@ -18,6 +20,8 @@ let request, response, next;
 
 //Simulated user id for testing purposes
 let userId = "5e0225837209a11ce0a5a9ab";
+let adminId = "5e143c0abeaf0d03d44b604d";
+
 //Simulated Bucketlist id for testing purposes
 let bucketlistid = "5def4ed3921dc21414ac979c";
 
@@ -33,18 +37,36 @@ describe("BucketlistController.getBucketlists", () => {
     it("should be a function", () => {
         expect(typeof BucketListController.getBucketlists).toBe('function');
     });
-
-    it("should call Bucketlist.find({})", async () => {
+    it("should find the user who wants to get the bucketlists", async () => {
+        request.params.userid = adminId;
         await BucketListController.getBucketlists(request, response, next);
-        expect(BucketList.find).toHaveBeenCalledWith({});
+        expect(User.findById).toHaveBeenCalledWith(adminId);
     });
-
-    it("should respond with a status code of 200 and all bucketlists", async () => {
+    it("should return an error message if user is not found", async () => {
+        User.findById.mockReturnValue(null);
+        await BucketListController.getBucketlists(request, response, next);
+        expect(response.statusCode).toBe(404); //Not Found
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
+            message: "We are unable to verify your identity."
+        });
+    });
+    it("should retrieve all bucketlists if the user is an administrator", async () => {
+        User.findById.mockReturnValue(adminUser);
         BucketList.find.mockReturnValue(allBucketLists);
         await BucketListController.getBucketlists(request, response, next);
         expect(response.statusCode).toBe(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(allBucketLists);
+    });
+    test("regular users should get only their own bucketlists", async () => {
+        User.findById.mockReturnValue(userWithBucketlist);
+        BucketList.findById.mockReturnValue(newBucketList);
+        await BucketListController.getBucketlists(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(oneUserBucketLists);
     });
 
     //error handling test for get request
@@ -52,6 +74,7 @@ describe("BucketlistController.getBucketlists", () => {
         const errorMessage = {message: "Unable to find bucketlists"};
         const rejectedPromise = Promise.reject(errorMessage);
 
+        User.findById.mockReturnValue(adminUser);
         BucketList.find.mockReturnValue(rejectedPromise);
 
         await BucketListController.getBucketlists(request, response, next);
