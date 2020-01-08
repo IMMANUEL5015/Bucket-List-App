@@ -133,10 +133,8 @@ exports.getSpecificBucketlist = async (request, response, next) => {
                     message: "This Bucketlist does not exist."
                 });
             }
-        }
-
-       //Step 3: A regular user should be able to get only their own bucketlist
-        else if(user.role == 'regular'){
+           //Step 3: A regular user should be able to get only their own associated specific bucketlist
+        }else{
             const associationStatus = confirmDataAssociation(request.params.id, user.bucketlists);
             if(associationStatus){
                 const bucketlist = await BucketList.findById(request.params.id);
