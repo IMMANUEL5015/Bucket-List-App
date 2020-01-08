@@ -90,19 +90,59 @@ exports.getBucketlists = async (request, response, next) => {
 //Update a Single Bucketlist
 exports.updateBucketList =  async (request, response, next) => {
     try{
-        request.body.date_modified = Date.now();
-        const updatedBucketlist = await BucketList.findByIdAndUpdate(request.params.id, request.body, {
-            new: true,
-            useFindAndModify: false
-        });
+        //Step 1: Find the logged in user
+        const user = await User.findById(request.params.userid); 
 
-        if(updatedBucketlist){
-            response.status(200).json(updatedBucketlist);
-        }else{
-            response.status(404).json({
-                status: "Not Found",
-                message: "Unable to find a matching Bucketlist" 
+        //Step 2: Return an error if the user is not registered with the app.
+        if(!user){
+            return response.status(404).json({
+                status: "Fail",
+                message: "We are unable to verify your identity."
             });
+        }
+
+        request.body.date_modified = Date.now();
+
+
+        //Step 3: An admin should be able to update any bucketlist
+        if(user.role == 'admin'){
+            const updatedBucketlist = await BucketList.findByIdAndUpdate(request.params.id, request.body, {
+                new: true,
+                useFindAndModify: false
+            });
+    
+            if(updatedBucketlist){
+                return response.status(200).json(updatedBucketlist);
+            }else{
+                return response.status(404).json({
+                    status: "Not Found",
+                    message: "Unable to find a matching Bucketlist." 
+                });
+            }
+        }else{
+            //Step 4: Regular users can update only their own associated specific bucketlist
+            const associationStatus = confirmDataAssociation(request.params.id, user.bucketlists);
+            if(associationStatus){
+                const updatedBucketlist = await BucketList.findByIdAndUpdate(request.params.id, request.body, {
+                    new: true,
+                    useFindAndModify: false
+                });
+        
+                if(updatedBucketlist){
+                    return response.status(200).json(updatedBucketlist);
+                }else{
+                    return response.status(404).json({
+                        status: "Not Found",
+                        message: "Unable to find a matching Bucketlist." 
+                    });
+                }
+            }else{
+                //Step 5: Error when regular users try to update a bucketlist that is not theirs.
+                return response.status(403).json({
+                    status: "Fail",
+                    message: "You cannot update a bucketlist that does not belong to you."
+                });
+            }
         }
     }catch(error){
         next(error);
