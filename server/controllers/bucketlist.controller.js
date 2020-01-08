@@ -202,11 +202,39 @@ exports.getSpecificBucketlist = async (request, response, next) => {
 //Delete a Bucketlist
 exports.deleteBucketlist = async (request, response, next) => {
     try{
-        const deletedBucketlist =  await BucketList.findByIdAndDelete(request.params.id);
-        if(deletedBucketlist){
-            response.status(200).json({message: "Bucketlist has been successfully deleted"});
+        //Step 1: Find the logged in user
+        const user = await User.findById(request.params.userid);
+
+        //Step 2: Return an error if the user is not registered with the app
+        if(!user){
+            return response.status(404).json({
+                status: "Fail",
+                message: "We are unable to verify your identity."
+            });
+        }
+
+        //Step 3: An admin user should be able to delete any bucketlist
+        if(user.role == 'admin'){
+            const deletedBucketlist =  await BucketList.findByIdAndDelete(request.params.id);
+            if(deletedBucketlist){
+                return response.status(200).json({message: "Bucketlist has been successfully deleted"});
+            }else{
+                return response.status(404).json({message: "This Bucketlist does not exist."});
+            }
         }else{
-            response.status(404).json({message: "This Bucketlist does not exist."});
+            //Step 4: Regular users should be able to delete only their own bucketlists
+            const association = confirmDataAssociation(request.params.id, user.bucketlists);
+            if(association){
+                const deletedBucketlist =  await BucketList.findByIdAndDelete(request.params.id);
+                if(deletedBucketlist){
+                    return response.status(200).json({message: "Bucketlist has been successfully deleted"});
+                }else{
+                    return response.status(404).json({message: "This Bucketlist does not exist."});
+                }
+            }else{
+                //Step 6: Return error when regular users try to delete an unassociated bucketlist
+                return response.status(403).json({message: "You cannot delete a bucketlist that was created by someone else."});
+            }
         }
     }catch(error){
         next(error);

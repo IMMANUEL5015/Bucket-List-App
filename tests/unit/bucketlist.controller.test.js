@@ -33,6 +33,93 @@ beforeEach(() => {
     next = jest.fn();
 });
 
+//Tests for deleting a specific Bucketlist
+describe("BucketlistController.deleteBucketlist", () => {
+    it("should be a function", () => {
+        expect(typeof BucketListController.deleteBucketlist).toBe("function");
+    });
+
+    it("should find the logged in user", async () => {
+        request.params.userid = adminId;
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(User.findById).toHaveBeenCalledWith(adminId);
+    });
+
+    it("should return an error if user is not found", async () => {
+        User.findById.mockReturnValue(null);
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(response.statusCode).toBe(404);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect( response._getJSONData()).toStrictEqual({
+            status: "Fail",
+            message: "We are unable to verify your identity."
+        });
+    });
+
+    test("An admin should be able to delete any bucketlist", async () => {
+        User.findById.mockReturnValue(adminUser);
+        const successMessage = {message: "Bucketlist has been successfully deleted"};
+        BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(successMessage);
+    });
+
+    it("returns an error when an admin user tries to delete a non-existent bucketlist", async () => {
+        User.findById.mockReturnValue(adminUser);
+        BucketList.findByIdAndDelete.mockReturnValue(null);
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(response.statusCode).toBe(404);
+        expect(response._getJSONData()).toStrictEqual({message: "This Bucketlist does not exist."});
+    });
+
+    it("should handle errors", async () => {
+        User.findById.mockReturnValue(adminUser);
+        const errorMessage = {message: "An error occured in trying to find and delete the Bucketlist. Please try again."};
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        BucketList.findByIdAndDelete.mockReturnValue(rejectedPromise);
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+    
+    test("regular users should be able to delete only their own associated bucketlists", async () => {
+        User.findById.mockReturnValue(userWithBucketlist);
+        request.params.id = userWithBucketlist.bucketlists[0];
+        const successMessage = {message: "Bucketlist has been successfully deleted"};
+        BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(successMessage);
+    });
+
+    test("error when regular users try to delete an associated non-existent bucketlist", async () => {
+        User.findById.mockReturnValue(userWithBucketlist);
+        request.params.id = userWithBucketlist.bucketlists[0];
+
+        BucketList.findByIdAndDelete.mockReturnValue(null);
+        await BucketListController.deleteBucketlist(request, response, next);
+        expect(response.statusCode).toBe(404);
+        expect(response._getJSONData()).toStrictEqual({message: "This Bucketlist does not exist."});
+    });
+
+    test("error when regular user tries to delete a bucketlist that is not their own", async () => {
+        User.findById.mockReturnValue(userWithBucketlist);
+        request.params.id = bucketlistid;
+
+        BucketList.findByIdAndUpdate.mockReturnValue(newBucketList);
+        await BucketListController.deleteBucketlist(request, response, next);
+
+        expect(response.statusCode).toBe(403);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            message: "You cannot delete a bucketlist that was created by someone else."
+        });
+    });
+});
+
 //Tests for updating a single bucketlist
 describe("BucketListController.updateBucketList", () => {
     it('should be a function', () => {
@@ -369,40 +456,3 @@ describe('BucketListController.createBucketList', () => {
     });
 });
 
-//Tests for deleting a specific Bucketlist
-describe("BucketlistController.deleteBucketlist", () => {
-    it("should be a function", () => {
-        expect(typeof BucketListController.deleteBucketlist).toBe("function");
-    });
-
-    it("should call BucketList.findByIdAndDelete with an id", async () => {
-        request.params.id = bucketlistid;
-        await BucketListController.deleteBucketlist(request, response, next);
-        expect(BucketList.findByIdAndDelete).toHaveBeenCalledWith(bucketlistid);
-    });
-
-    it("should return a status code of 200 and a success message", async () => {
-        const successMessage = {message: "Bucketlist has been successfully deleted"};
-        BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
-        await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
-        expect(response._isEndCalled()).toBeTruthy();
-        expect(response._getJSONData()).toStrictEqual(successMessage);
-    });
-
-    it("should handle errors", async () => {
-        const errorMessage = {message: "An error occured in trying to find and delete the Bucketlist. Please try again."};
-        const rejectedPromise = Promise.reject(errorMessage);
-
-        BucketList.findByIdAndDelete.mockReturnValue(rejectedPromise);
-        await BucketListController.deleteBucketlist(request, response, next);
-        expect(next).toHaveBeenCalledWith(errorMessage);
-    });
-
-    it("should return a status code of 404 if the Bucketlist to be deleted is not found", async () => {
-        BucketList.findByIdAndDelete.mockReturnValue(null);
-        await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(404);
-        expect(response._getJSONData()).toStrictEqual({message: "This Bucketlist does not exist."});
-    });
-});
