@@ -1,4 +1,3 @@
-
 const request = require('supertest');
 const app = require('../../server/routes/index');
 const newBucketlist = require('../mock-data/integration/new-bucketlist-int.json');
@@ -173,8 +172,4 @@ describe("BucketList API Endpoints", () => {
             message: "You do not have permission to access this resource."
         });
     });
-});
-
-test("2 + 2 = 4", () => {
-    expect(2 + 2).toBe(4);
 });

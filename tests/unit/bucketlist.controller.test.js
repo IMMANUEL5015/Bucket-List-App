@@ -32,6 +32,102 @@ beforeEach(() => {
     next = jest.fn();
 });
 
+//Tests for getting a specific bucketlist
+describe("BucketListController.getSpecificBucketlist", () => {
+    it("should be a function", () => {
+        expect(typeof BucketListController.getSpecificBucketlist).toBe("function");
+    });
+
+    it("should find the logged in user", async () => {
+        request.params.userid = adminId;
+        await BucketListController.getSpecificBucketlist(request, response, next);
+        expect(User.findById).toHaveBeenCalledWith(adminId);
+    });
+
+    it("should return an error if user is not found", async () => {
+        User.findById.mockReturnValue(null);
+        await BucketListController.getSpecificBucketlist(request, response, next);
+        expect(response.statusCode).toBe(404);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
+            message: "We are Unable to Verify Your Identity."
+        });
+    });
+    test("An admin can get any specific Bucketlist", async () => {
+        User.findById.mockReturnValue(adminUser);
+        BucketList.findById.mockReturnValue(newBucketList);
+        await BucketListController.getSpecificBucketlist(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(newBucketList);
+    });  
+    
+    it("should return an error if an admin user fails to find the bucketlist", async () => {
+        User.findById.mockReturnValue(adminUser);
+
+        const errorMessage = {message: "This Bucketlist does not exist."};
+
+        BucketList.findById.mockReturnValue(null);
+        await BucketListController.getSpecificBucketlist(request, response, next);
+
+        expect(response.statusCode).toBe(404);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(errorMessage);
+    });
+
+    test("A regular user can get any of their own associated specific Bucketlist", async () => {
+        User.findById.mockReturnValue(userWithBucketlist);
+        request.params.id = userWithBucketlist.bucketlists[0];
+        BucketList.findById.mockReturnValue(newBucketList);
+        await BucketListController.getSpecificBucketlist(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(newBucketList);
+    });
+
+    it("should return an error if a regular user fails to find the bucketlist", async () => {
+        User.findById.mockReturnValue(userWithBucketlist);
+        request.params.id = userWithBucketlist.bucketlists[0];
+
+        const errorMessage = {message: "This Bucketlist does not exist."};
+
+        BucketList.findById.mockReturnValue(null);
+        await BucketListController.getSpecificBucketlist(request, response, next);
+
+        expect(response.statusCode).toBe(404);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(errorMessage);
+    });
+
+    it("error if a regular user tries to get someone else's bucketlist", async () => {
+        request.params.id = bucketlistid;
+        User.findById.mockReturnValue(userWithBucketlist);
+
+        BucketList.findById.mockReturnValue(newBucketList);
+        await BucketListController.getSpecificBucketlist(request, response, next);
+
+        expect(response.statusCode).toBe(403);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
+            message: "You cannot interact with a bucketlist that does not belong to you."
+        });
+    })
+
+    it("should handle errors", async () => {
+        User.findById.mockReturnValue(adminUser);
+
+        const errorMessage = {message: "Unable to find the bucketlist"};
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        BucketList.findById.mockReturnValue(rejectedPromise);
+        await BucketListController.getSpecificBucketlist(request, response, next);
+
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+});
+
 //Tests for getting all bucketlists
 describe("BucketlistController.getBucketlists", () => {
     it("should be a function", () => {
@@ -207,48 +303,6 @@ describe("BucketListController.updateBucketList", () => {
             status: "Not Found",
             message: "Unable to find a matching Bucketlist"
         });
-    });
-});
-
-//Tests for getting a specific bucketlist
-describe("BucketListController.getSpecificBucketlist", () => {
-    it("should be a function", () => {
-        expect(typeof BucketListController.getSpecificBucketlist).toBe("function");
-    });
-
-    it("should call BucketList.findById with an id", async () => {
-        request.params.id = bucketlistid;
-        await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(BucketList.findById).toHaveBeenCalledWith(bucketlistid);
-    });
-
-    it("should respond with status code 200, and json body", async () => {
-        BucketList.findById.mockReturnValue(newBucketList);
-        await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
-        expect(response._isEndCalled()).toBeTruthy();
-        expect(response._getJSONData()).toStrictEqual(newBucketList);
-    });
-
-    it("should handle errors", async () => {
-        const errorMessage = {message: "Unable to find the bucketlist"};
-        const rejectedPromise = Promise.reject(errorMessage);
-
-        BucketList.findById.mockReturnValue(rejectedPromise);
-        await BucketListController.getSpecificBucketlist(request, response, next);
-
-        expect(next).toHaveBeenCalledWith(errorMessage);
-    });
-
-    it("should return status code 404 and error message if Bucketlist is not found", async () => {
-        const errorMessage = {message: "This Bucketlist does not exist."};
-
-        BucketList.findById.mockReturnValue(null);
-        await BucketListController.getSpecificBucketlist(request, response, next);
-
-        expect(response.statusCode).toBe(404);
-        expect(response._isEndCalled()).toBeTruthy();
-        expect(response._getJSONData()).toStrictEqual(errorMessage);
     });
 });
 

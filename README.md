@@ -28,7 +28,8 @@ This Web Application has the features indicated below:
 * It associates individual Bucketlists with their respective creators.
 * It allows authenticated regular users to retrieve only their own Bucketlists.
 * It allows authenticated admin users to retrieve all Bucketlists.
-* It gives authenticated users the ability to retrieve, update and delete a specific Bucketlist.
+* It gives authenticated admin users the ability to retrieve, update and delete any specific Bucketlist.
+* It gives authenticated regular users the ability to retrieve, update and delete any of their own associated specific Bucketlist.
 
 
 ## Technologies Used in this Project

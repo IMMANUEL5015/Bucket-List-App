@@ -1,6 +1,21 @@
 const BucketList = require('../models/bucketlist.model');
 const User = require('../models/usermodel');
 
+//Function for checking if a bucketlist is associated with a user
+function confirmDataAssociation(bucketlistId, userBucketlists){
+    let result = false;
+
+    //Loop through all the bucketlists belonging to the user
+    for(var i = 0; i < userBucketlists.length; i++){
+        if(userBucketlists[i] == bucketlistId){
+            result = true;
+        }
+    }
+
+    //Return true if the association is confirmed and false if not.
+    return result;
+}
+
 //Create a new Bucketlist - Both administrators and normal users can create a new bucketlist
 exports.createBucketList = async (request, response, next) => {
     try{
@@ -95,21 +110,56 @@ exports.updateBucketList =  async (request, response, next) => {
 }
 
 //Get a Specific Bucketlist
-exports.getSpecificBucketlist = async(request, response, next) => {
+exports.getSpecificBucketlist = async (request, response, next) => {
     try{
-        const bucketlist = await BucketList.findById(request.params.id);
-        if(bucketlist){
-            response.status(200).json(bucketlist);
+        //Step 1: Find the Logged in user
+        const user = await User.findById(request.params.userid);
 
-        }else{
-            response.status(404).json({
-                message: "This Bucketlist does not exist."
+        if(!user){ //Return an error if the user does not exist
+            return response.status(404).json({
+                status: "Fail",
+                message: "We are Unable to Verify Your Identity."
             });
         }
+
+        //Step 2: An admin user should be able to get any specific bucketlist
+        if(user.role == 'admin'){
+            const theBucketlist = await BucketList.findById(request.params.id);
+            if(theBucketlist){
+                return response.status(200).json(theBucketlist);
+
+            }else{
+                return response.status(404).json({
+                    message: "This Bucketlist does not exist."
+                });
+            }
+        }
+
+       //Step 3: A regular user should be able to get only their own bucketlist
+        else if(user.role == 'regular'){
+            const associationStatus = confirmDataAssociation(request.params.id, user.bucketlists);
+            if(associationStatus){
+                const bucketlist = await BucketList.findById(request.params.id);
+                if(bucketlist){
+                    return response.status(200).json(bucketlist);
+
+                }else{
+                    return response.status(404).json({
+                        message: "This Bucketlist does not exist."
+                    });
+                }
+            }else{ //Return an error if the user is not associated with the bucketlist
+                return response.status(403).json({
+                    status: "Fail",
+                    message: "You cannot interact with a bucketlist that does not belong to you."
+                });
+            }
+        } 
     }catch(error){
         next(error);
     }  
 }
+
 
 //Delete a Bucketlist
 exports.deleteBucketlist = async (request, response, next) => {
