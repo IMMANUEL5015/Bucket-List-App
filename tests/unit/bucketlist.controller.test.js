@@ -10,6 +10,7 @@ const User = require('../../server/models/usermodel');
 const newUser = require('../mock-data/unit/new-user-unit.json');
 const adminUser = require('../mock-data/unit/new-admin-user.json');
 const userWithBucketlist = require('../mock-data/unit/user-with-bucketlist.json');
+const anotherUserWithBucketlist = require('../mock-data/unit/another-user-with-bucketlists.json');
 
 
 //Mock the BucketList Model methods
@@ -85,8 +86,8 @@ describe("BucketlistController.deleteBucketlist", () => {
     });
     
     test("regular users should be able to delete only their own associated bucketlists", async () => {
-        User.findById.mockReturnValue(userWithBucketlist);
-        request.params.id = userWithBucketlist.bucketlists[0];
+        User.findById.mockReturnValue(anotherUserWithBucketlist);
+        request.params.id = anotherUserWithBucketlist.bucketlists[0];
         const successMessage = {message: "Bucketlist has been successfully deleted"};
         BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
         await BucketListController.deleteBucketlist(request, response, next);
@@ -96,8 +97,8 @@ describe("BucketlistController.deleteBucketlist", () => {
     });
 
     test("error when regular users try to delete an associated non-existent bucketlist", async () => {
-        User.findById.mockReturnValue(userWithBucketlist);
-        request.params.id = userWithBucketlist.bucketlists[0];
+        User.findById.mockReturnValue(anotherUserWithBucketlist);
+        request.params.id = anotherUserWithBucketlist.bucketlists[0];
 
         BucketList.findByIdAndDelete.mockReturnValue(null);
         await BucketListController.deleteBucketlist(request, response, next);

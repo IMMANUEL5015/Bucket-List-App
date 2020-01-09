@@ -229,6 +229,17 @@ exports.deleteBucketlist = async (request, response, next) => {
                 if(deletedBucketlist){
                     return response.status(200).json({message: "Bucketlist has been successfully deleted"});
                 }else{
+                    //Step 5: Delete the bucketlistId from the array of bucketlistsId's belonging to the user.
+                    for(var i = 0; i < user.bucketlists.length; i++){
+                        if(request.params.id == user.bucketlists[i]){
+                            user.bucketlists.splice(i, 1);
+                        }
+                    }
+                    await User.findByIdAndUpdate(request.params.userid, user, {
+                        useFindAndModify:false,
+                        new: true
+                    });
+                     
                     return response.status(404).json({message: "This Bucketlist does not exist."});
                 }
             }else{
