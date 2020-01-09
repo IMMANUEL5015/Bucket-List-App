@@ -116,7 +116,7 @@ describe("BucketlistController.deleteBucketlist", () => {
         expect(response.statusCode).toBe(403);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
-            message: "You cannot delete a bucketlist that was created by someone else."
+            message: "You cannot delete a bucketlist that does not belong to you."
         });
     });
 });

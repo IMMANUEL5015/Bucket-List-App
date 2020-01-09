@@ -25,18 +25,6 @@ describe("BucketList API Endpoints", () => {
         await Bucketlist.findOneAndDelete({
              title: "The Tower"   
         });
-    });
-
-    //Making sure that the test user does not remain associated with the test data
-    afterAll(async () => {
-        User.findById('5e016bc1b437260f3c4e7066', async function(error, user){
-            if(error){
-                console.log(error);
-            }else{
-                await user.bucketlists.splice(2, 19);
-                await user.save({validateBeforeSave: false});
-            }
-        });
     });    
 
     //Creating a bucketlist
@@ -159,6 +147,15 @@ describe("BucketList API Endpoints", () => {
         expect(response.body).toStrictEqual({message: "Bucketlist has been successfully deleted"});
     });
 
+    //Delete an associated bucketlistid where the corresponding bucketlist is non-existent.
+    it("should be able to delete a single Bucketlist", async () => {
+        const response =  await request(app)
+            .delete(baseEndpoint + id)
+            .set('Authorization', 'Bearer ' + token);
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toStrictEqual({message: "This Bucketlist does not exist."});
+    });
+    
     //Error when UNAUTHORIZED users try to access a forbidden resource
     test("should return an error message for unauthorized users", async () => {
         const response = await request(app)

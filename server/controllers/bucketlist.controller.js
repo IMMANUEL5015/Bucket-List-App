@@ -244,7 +244,7 @@ exports.deleteBucketlist = async (request, response, next) => {
                 }
             }else{
                 //Step 6: Return error when regular users try to delete an unassociated bucketlist
-                return response.status(403).json({message: "You cannot delete a bucketlist that was created by someone else."});
+                return response.status(403).json({message: "You cannot delete a bucketlist that does not belong to you."});
             }
         }
     }catch(error){
