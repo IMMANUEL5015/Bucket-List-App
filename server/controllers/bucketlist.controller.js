@@ -10,6 +10,10 @@ function confirmDataAssociation(bucketlistId, userBucketlists){
         if(userBucketlists[i] == bucketlistId){
             result = true;
         }
+        //End the loop once the association has been confirmed
+        if(result == true){
+            return result;
+        }
     }
 
     //Return true if the association is confirmed and false if not.
@@ -233,6 +237,8 @@ exports.deleteBucketlist = async (request, response, next) => {
                     for(var i = 0; i < user.bucketlists.length; i++){
                         if(request.params.id == user.bucketlists[i]){
                             user.bucketlists.splice(i, 1);
+                            //End the loop once the id has been deleted
+                            i = user.bucketlists.length + 1;
                         }
                     }
                     await User.findByIdAndUpdate(request.params.userid, user, {
