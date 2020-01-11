@@ -76,17 +76,17 @@ When you forget your password, the following steps must be followed in order to 
 
 ### API Endpoints and their Functionality
 
-| Endpoint                      |Function                               |
-|-------------------------------|---------------------------------------|
-| POST/auth/signup              | Signs up a user                       |
-| POST/auth/login               | Logs in an existing user              |
-| POST/auth/forgotPassword      | Sends a reset link to the user's email| 
-| POST/auth/resetPassword/:token| Resets the user's password            | 
-| POST/bucketlists              | Creates a new bucketlist              |
-| GET/bucketlists               | Retrieves all bucketlists             |
-| GET/bucketlists/:id           | Retrieves a single bucketlist         |
-| PUT/bucketlists/:id           | Edit and Update a bucketlist          |
-| DELETE/bucketlists/:id        | Delete a bucketlist                   |
+| Endpoint                       |Function                               |
+|--------------------------------|---------------------------------------|
+| POST/auth/signup               | Signs up a user                       |
+| POST/auth/login                | Logs in an existing user              |
+| POST/auth/forgotPassword       | Sends a reset link to the user's email| 
+| PATCH/auth/resetPassword/:token| Resets the user's password            | 
+| POST/bucketlists               | Creates a new bucketlist              |
+| GET/bucketlists                | Retrieves all bucketlists             |
+| GET/bucketlists/:id            | Retrieves a single bucketlist         |
+| PUT/bucketlists/:id            | Edit and Update a bucketlist          |
+| DELETE/bucketlists/:id         | Delete a bucketlist                   |
  
 
 ### Sample Requests and Responses From the API
