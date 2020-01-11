@@ -13,6 +13,15 @@ const signup = "/signup"
 //login path after base endpoint
 const login = "/login"
 
+//Endpoint for forgotten passwords
+const forgotPassword = "/auth/forgotPassword";
+
+//Test Reset Token
+let resetToken;
+
+//Endpoint for resetting passwords
+const resetPassword = "/auth/resetPassword/";
+
 //Signing up a user
 describe("POST " + endpointUrl + signup, () => {
     //Making sure that our predefined test data is not already in the Database
@@ -95,5 +104,42 @@ describe("POST " + endpointUrl + login, () => {
     });
 });
  
+//When a user forgets their password
+describe("POST " + forgotPassword, () => {
+    it("should respond with a success message and a reset link", async () => {
+        const response = await request(app)
+            .post(forgotPassword)
+            .send({email: "raphaeldiai@gmail.com"});
 
+            expect(response.statusCode).toBe(200);
+            expect(response.body.status).toBe("Success");
+            expect(response.body.message).toBe("Your reset link has been sent to your email address.");
+            
+            resetToken = response.body.yourResetToken;
+    });
+});
 
+//When a user resets their password
+describe("POST " + resetPassword, () => {
+    it("should return an error if the reset token has expired", async () => {
+        const response = await request(app).patch("/auth/resetPassword/" + process.env.RESET_TOKEN);
+        
+        expect(response.statusCode).toBe(400);
+        expect(response.body.status).toBe("Fail");
+        expect(response.body.message).toBe("Your reset token has expired. Please request for a new reset token.");         
+    });
+    
+    it("should respond with a success message if everything goes well.", async () => {
+        const response = await request(app)
+            .patch(resetPassword + resetToken)
+            .send({
+                password: process.env.ADMIN_PASSWORD,
+                confirmPassword:process.env.ADMIN_PASSWORD
+            });
+
+            expect(response.statusCode).toBe(200);
+            expect(response.body.status).toBe("Successful!");
+            expect(response.body.message).toBe("Your Password Has Been Changed Successfully!");
+            expect(response.body.token).toBeTruthy();
+    });
+});

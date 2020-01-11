@@ -1,8 +1,10 @@
 require('dotenv').config();
 const { promisify } = require('util');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/usermodel');
 const bcrypt = require('bcryptjs');
+const sendEmail = require('../utilities/email');
 
 //Function for generating token 
 const signToken = id => {
@@ -132,5 +134,101 @@ exports.authorize = (...roles) => {
             });
         }
         next();
+    }
+}
+
+//Send reset token to the email address of users who have forgotten their password
+exports.forgotPassword = async (request, response, next) => {
+    try{
+        //Step 1: Find the User based off the provided email address
+        const user = await User.findOne({email: request.body.email});
+
+        //Return an error if user is not found
+        if(!user){
+            return response.status(404).json({
+                status: "Fail",
+                message: "There is no user with that email address."
+            });
+        }
+
+        //Step 2: Generate the random reset token (not JWT)
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        //Encrypt the token and save the encrypted version to the database
+        user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        user.passwordResetTokenExpires = Date.now() + (1000 * 60 * 10);
+        await user.save({validateBeforeSave: false});
+
+        //Step 3: Send the unencrypted token version to the user's email
+
+        //The url containing the token which will be sent to the user's email
+        const resetURL = `${request.protocol}://${request.get('host')}/auth/resetPassword/${resetToken}`;
+
+        //The message to be sent containing the URL
+        const message = `Forgot your password? Please click on this link ${resetURL}.`;
+
+        //Now, send the email message to the user's email address
+        await sendEmail({
+            email: user.email,
+            subject: "Password Reset Token. Valid for only 10 Minutes!",
+            message: message
+        });
+
+        //Step 4: Send a success message to the user.
+        response.status(200).json({
+            status: "Success",
+            message: "Your reset link has been sent to your email address.",
+            yourResetToken: resetToken
+        });
+
+    }catch(error){
+        next(error);
+    }
+}
+
+exports.resetPassword = async (request, response, next) => {
+    try{
+        //Step 1: Get User based on token - Remember that the token in the database is encrypted
+        const hashedToken = crypto.createHash("sha256").update(request.params.token).digest('hex');
+        const user = await User.findOne({passwordResetToken: hashedToken});
+
+        //Step 2: Return an error if there is no user
+        if(!user){
+                return response.status(404).json({
+                status: "Fail",
+                message: "There is no user with that token."
+            });
+        }
+
+        //Step 3: Check if token has expired and return an error if the token has expired
+        const resetTokenExpiresIn = parseInt(user.passwordResetTokenExpires.getTime() / 1000, 10);
+        const currentTime = parseInt(Date.now() / 1000, 10);
+
+        if(resetTokenExpiresIn <= currentTime){
+            return response.status(400).json({
+                status: "Fail",
+                message: "Your reset token has expired. Please request for a new reset token."
+            });
+        }
+
+        //Step 4: Set the new password if no errors
+        user.password = request.body.password;
+        user.confirmPassword = request.body.confirmPassword;
+        user.passwordResetToken = undefined;
+        user.passwordResetTokenExpires = undefined;
+        await user.save();
+
+        // Step 5: Update the passwordChangedAt property for the user
+
+        //Step 6: Log the user in immediately
+        const token = signToken(user._id);
+        response.status(200).json({
+            status: 'Successful!',
+            message: "Your Password Has Been Changed Successfully!",
+            token
+        });
+
+    }catch(error){
+        next(error);
     }
 }

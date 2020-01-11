@@ -15,6 +15,76 @@ beforeEach(() => {
     next = jest.fn();
 });
 
+//Tests for the resetPassword controller
+describe("authController.resetPassword", () => {
+    it("should be a function", () => {
+        expect(typeof authController.resetPassword).toBe('function');
+    });
+
+    it("should call User.findOne with the encrypted reset token", async () => {
+        request.params.token = process.env.RESET_TOKEN;
+        await authController.resetPassword(request, response, next);
+        expect(User.findOne).toBeCalledWith({passwordResetToken: process.env.ENCRYPTED_RESET_TOKEN});
+    });
+
+    it("should return an error if user is not found", async () => {
+        request.params.token = process.env.RESET_TOKEN;
+        User.findOne.mockReturnValue(null);
+        await authController.resetPassword(request, response, next);
+        expect(response.statusCode).toBe(404);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
+            message: "There is no user with that token."
+        });
+    });
+
+    it("should handle errors for asynchronous code", async () => {
+        request.params.token = process.env.RESET_TOKEN;
+        const errorMessage = {message: "Unable to complete this operation."}
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        User.findOne.mockReturnValue(rejectedPromise);
+
+        await authController.resetPassword(request, response, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+});
+
+//Tests for the forgotPassword controller
+describe("authController.forgotPassword", () => {
+    it("should be a function", () => {
+        expect(typeof authController.forgotPassword).toBe('function');
+    });
+
+    it("should call User.findOne with the user's email address", async () => {
+        request.body.email = "immanueldiai@gmail.com";
+        await authController.forgotPassword(request, response, next);
+        expect(User.findOne).toBeCalledWith({email: "immanueldiai@gmail.com"});
+    });
+
+    it("should return an error if user is not found", async () => {
+        User.findOne.mockReturnValue(null);
+        await authController.forgotPassword(request, response, next);
+        expect(response.statusCode).toBe(404);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
+            message: "There is no user with that email address."
+        });
+    });
+
+    it("should handle errors for asynchronous code", async () => {
+        const errorMessage = {message: "Unable to complete this operation."}
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        User.findOne.mockReturnValue(rejectedPromise);
+
+        await authController.forgotPassword(request, response, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+});
+
 //Signing up user
 describe("AuthController API", () => {
     beforeEach(() => {
