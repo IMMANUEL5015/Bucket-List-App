@@ -1,15 +1,13 @@
-require('dotenv').config();
+const loggingInUsers = require('../utilities/loggingInUsers');
 const { promisify } = require('util');
-const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/usermodel');
 const bcrypt = require('bcryptjs');
 const sendEmail = require('../utilities/email');
-
-//Function for generating token 
-const signToken = id => {
-    return jwt.sign({id: id}, process.env.SECRET , {expiresIn: '30d'});
-}
+const generateResetToken = require('../utilities/generateResetToken');
+const encryptResetToken = require('../utilities/encryptResetToken');
+const tokenHasExpired = require('../utilities/tokenHasExpired');
+const sendErrorMessage = require('../utilities/sendErrorMessage');
 
 //Signup user
 exports.signup = async(request, response, next) => {
@@ -26,15 +24,8 @@ exports.signup = async(request, response, next) => {
             role: request.body.role
         });
 
-        const token = signToken(newUser._id);
-
-        response.status(201).json({
-            status: 'User has been Successfully Created',
-            token,
-            data: {
-                user: newUser
-            }
-        });
+        //Login the user immediately
+        return loggingInUsers(newUser._id, 201, response, 'Success', 'User has been Successfully Created');
     }catch(error){
         next(error);
     }
@@ -47,28 +38,18 @@ exports.login = async (request, response, next) => {
 
         //Error occurs when either the password or email field is empty
         if(!email || !password){
-            return response.status(400).json({
-                "status": "Fail",
-                "message": "Please provide your email and password"
-            });
+            return sendErrorMessage(400, "Fail", response, "Please provide your email and password");
         }
     
         const user = await User.findOne({email: request.body.email});
     
         //Error if user is non-existent or if password is incorrect
         if(!user ||  !(await bcrypt.compare(password, user.password) == true)){
-            return response.status(401).json({
-                "status": "Fail",
-                "message": "Unable to verify. Please provide your correct details."
-            });
+            return sendErrorMessage(401, "Fail", response, "Unable to verify. Please provide your correct details.");
         }
     
-        //If verification is successful, send token is client
-        const token = signToken(user._id);
-        response.status(200).json({
-            status: 'Success',
-            token
-        });
+        //If verification is successful log the user in
+        return loggingInUsers(user._id, 200, response,'Success', 'You are now logged into the application.');
     }catch(error){
         next(error);
     }
@@ -87,10 +68,7 @@ exports.protect = async (request, response, next) => {
 
         //Return error if token does not exist
         if(!token){
-           return response.status(401).json({
-                status: "Fail",
-                message: "We are unable to verify your identity. Please login to gain access"
-            });
+            return sendErrorMessage(401, "Fail", response, "We are unable to verify your identity. Please login to gain access");
         }
 
         //Step 2: Verify the token if it exists
@@ -101,20 +79,14 @@ exports.protect = async (request, response, next) => {
 
         //If the user does not exist, return an error
         if(!user){
-            return response.status(401).json({
-                status: 'Fail',
-                message: "This user does not exist."
-            });
+            return sendErrorMessage(401, "Fail", response, "This user does not exist.");
         }
 
         //Step 4: Check if user has changed password since token was issued
             let timeWhenPasswordWasModified = parseInt(user.passwordChangedAt.getTime() / 1000, 10);
             const timeWhenTokenWasIssued = verified.iat;
             if(timeWhenPasswordWasModified > timeWhenTokenWasIssued){
-                return response.status(401).json({
-                    status: "Fail",
-                    message: "Your password was modified recently. Please login again."
-                });
+                return sendErrorMessage(401, "Fail", response, "Your password was modified recently. Please login again.");
             }
 
         request.user = user //Useful later during authorization
@@ -128,10 +100,7 @@ exports.protect = async (request, response, next) => {
 exports.authorize = (...roles) => {
     return (request, response, next) => {
         if(!roles.includes(request.user.role)){
-            return response.status(403).json({
-                status: "fail",
-                message: "You do not have permission to access this resource."
-            });
+            return sendErrorMessage(403, "fail", response, "You do not have permission to perform this action.");
         }
         next();
     }
@@ -145,17 +114,14 @@ exports.forgotPassword = async (request, response, next) => {
 
         //Return an error if user is not found
         if(!user){
-            return response.status(404).json({
-                status: "Fail",
-                message: "There is no user with that email address."
-            });
+            return sendErrorMessage(404, "Fail", response, "There is no user with that email address.");
         }
 
         //Step 2: Generate the random reset token (not JWT)
-        const resetToken = crypto.randomBytes(32).toString("hex");
+        const resetToken = generateResetToken();
 
         //Encrypt the token and save the encrypted version to the database
-        user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        user.passwordResetToken = encryptResetToken(resetToken);
         user.passwordResetTokenExpires = Date.now() + (1000 * 60 * 10);
         await user.save({validateBeforeSave: false});
 
@@ -175,7 +141,7 @@ exports.forgotPassword = async (request, response, next) => {
         });
 
         //Step 4: Send a success message to the user.
-        response.status(200).json({
+        return response.status(200).json({
             status: "Success",
             message: "Your reset link has been sent to your email address.",
             yourResetToken: resetToken
@@ -189,26 +155,19 @@ exports.forgotPassword = async (request, response, next) => {
 exports.resetPassword = async (request, response, next) => {
     try{
         //Step 1: Get User based on token - Remember that the token in the database is encrypted
-        const hashedToken = crypto.createHash("sha256").update(request.params.token).digest('hex');
+        const hashedToken = encryptResetToken(request.params.token);
         const user = await User.findOne({passwordResetToken: hashedToken});
 
         //Step 2: Return an error if there is no user
         if(!user){
-                return response.status(404).json({
-                status: "Fail",
-                message: "There is no user with that token."
-            });
+            return sendErrorMessage(404, "Fail", response, "There is no user with that token.");
         }
 
-        //Step 3: Check if token has expired and return an error if the token has expired
-        const resetTokenExpiresIn = parseInt(user.passwordResetTokenExpires.getTime() / 1000, 10);
-        const currentTime = parseInt(Date.now() / 1000, 10);
+        //Step 3: Check if token has expired and return an error if it has
+        const hasTokenExpired = tokenHasExpired(user.passwordResetTokenExpires.getTime());
 
-        if(resetTokenExpiresIn <= currentTime){
-            return response.status(400).json({
-                status: "Fail",
-                message: "Your reset token has expired. Please request for a new reset token."
-            });
+        if(hasTokenExpired){
+            return sendErrorMessage(400, "Fail", response, "Your reset token has expired. Please request for a new reset token.");
         }
 
         //Step 4: Set the new password if no errors
@@ -218,16 +177,8 @@ exports.resetPassword = async (request, response, next) => {
         user.passwordResetTokenExpires = undefined;
         await user.save();
 
-        // Step 5: Update the passwordChangedAt property for the user
-
         //Step 6: Log the user in immediately
-        const token = signToken(user._id);
-        response.status(200).json({
-            status: 'Successful!',
-            message: "Your Password Has Been Changed Successfully!",
-            token
-        });
-
+        return loggingInUsers(user._id, 200, response,'Successful!', 'Your Password Has Been Changed Successfully!');
     }catch(error){
         next(error);
     }

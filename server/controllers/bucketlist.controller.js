@@ -1,24 +1,9 @@
+const sendErrorMessage = require('../utilities/sendErrorMessage');
+const sendSuccessMessage = require('../utilities/sendSuccessMessage');
+const confirmDataAssociation = require('../utilities/confirmDataAssociation');
 const BucketList = require('../models/bucketlist.model');
 const User = require('../models/usermodel');
-
-//Function for checking if a bucketlist is associated with a user
-function confirmDataAssociation(bucketlistId, userBucketlists){
-    let result = false;
-
-    //Loop through all the bucketlists belonging to the user
-    for(var i = 0; i < userBucketlists.length; i++){
-        if(userBucketlists[i] == bucketlistId){
-            result = true;
-        }
-        //End the loop once the association has been confirmed
-        if(result == true){
-            return result;
-        }
-    }
-
-    //Return true if the association is confirmed and false if not.
-    return result;
-}
+const deleteUserBucketlist = require('../utilities/deleteUserBucketlist');
 
 //Create a new Bucketlist - Both administrators and normal users can create a new bucketlist
 exports.createBucketList = async (request, response, next) => {
@@ -26,17 +11,14 @@ exports.createBucketList = async (request, response, next) => {
         //Find the User who intends to create a new Bucketlist
         const user = await User.findById(request.params.userid);
         if(!user){//Error if user is unknown
-            return response.status(401).json({
-                message: "You are not allowed to perform this action."
-            });
+            return sendErrorMessage(401, "Fail", response, "You are not allowed to perform this action.");
         }
+
         //Create the Bucketlist
         request.body.created_by = user.fullName;
         const bucketlist =  await BucketList.create(request.body);
         if(!bucketlist){//Error if Bucketlist is not created
-            return response.status(500).json({
-                message: "Failed to create Bucketlist."
-            });   
+            return sendErrorMessage(500, "Fail", response, "Failed to create Bucketlist.");   
         }
 
         //Associate the created Bucketlist with the user
@@ -45,10 +27,9 @@ exports.createBucketList = async (request, response, next) => {
             new: true,
             useFindAndModify: false
         });
+
         if(!updatedUser){//Error if the user is not associated with the Bucketlist
-            return response.status(500).json({
-                message: "Failed to Associate the User with the Bucketlist."
-            });
+            return sendErrorMessage(500, "Fail", response, "Failed to Associate the User with the Bucketlist.");   
         }
 
         //Respond with the newly created Bucketlist
@@ -67,10 +48,7 @@ exports.getBucketlists = async (request, response, next) => {
         let user = await User.findById(request.params.userid);
     
         if(!user){//Error if no user is found
-            return response.status(404).json({ 
-                status: "Fail",
-                message: "We are unable to verify your identity."
-            });
+            return sendErrorMessage(404, "Fail", response, "We are unable to verify your identity.");   
         }
     
         //If the user is found:
@@ -99,10 +77,7 @@ exports.updateBucketList =  async (request, response, next) => {
 
         //Step 2: Return an error if the user is not registered with the app.
         if(!user){
-            return response.status(404).json({
-                status: "Fail",
-                message: "We are unable to verify your identity."
-            });
+            return sendErrorMessage(404, "Fail", response, "We are unable to verify your identity.");   
         }
 
         request.body.date_modified = Date.now();
@@ -118,10 +93,7 @@ exports.updateBucketList =  async (request, response, next) => {
             if(updatedBucketlist){
                 return response.status(200).json(updatedBucketlist);
             }else{
-                return response.status(404).json({
-                    status: "Not Found",
-                    message: "Unable to find a matching Bucketlist." 
-                });
+                return sendErrorMessage(404, "Not Found", response, "Unable to find a matching Bucketlist.");   
             }
         }else{
             //Step 4: Regular users can update only their own associated specific bucketlist
@@ -135,17 +107,11 @@ exports.updateBucketList =  async (request, response, next) => {
                 if(updatedBucketlist){
                     return response.status(200).json(updatedBucketlist);
                 }else{
-                    return response.status(404).json({
-                        status: "Not Found",
-                        message: "Unable to find a matching Bucketlist." 
-                    });
+                    return sendErrorMessage(404, "Not Found", response, "Unable to find a matching Bucketlist.");   
                 }
             }else{
                 //Step 5: Error when regular users try to update a bucketlist that is not theirs.
-                return response.status(403).json({
-                    status: "Fail",
-                    message: "You cannot update a bucketlist that does not belong to you."
-                });
+                return sendErrorMessage(403, "Fail", response, "You cannot update a bucketlist that does not belong to you.");   
             }
         }
     }catch(error){
@@ -160,10 +126,7 @@ exports.getSpecificBucketlist = async (request, response, next) => {
         const user = await User.findById(request.params.userid);
 
         if(!user){ //Return an error if the user does not exist
-            return response.status(404).json({
-                status: "Fail",
-                message: "We are Unable to Verify Your Identity."
-            });
+            return sendErrorMessage(404, "Fail", response, "We are Unable to Verify Your Identity.");  
         }
 
         //Step 2: An admin user should be able to get any specific bucketlist
@@ -173,9 +136,7 @@ exports.getSpecificBucketlist = async (request, response, next) => {
                 return response.status(200).json(theBucketlist);
 
             }else{
-                return response.status(404).json({
-                    message: "This Bucketlist does not exist."
-                });
+                return sendErrorMessage(404, "Fail", response, "This Bucketlist does not exist.");  
             }
            //Step 3: A regular user should be able to get only their own associated specific bucketlist
         }else{
@@ -186,15 +147,10 @@ exports.getSpecificBucketlist = async (request, response, next) => {
                     return response.status(200).json(bucketlist);
 
                 }else{
-                    return response.status(404).json({
-                        message: "This Bucketlist does not exist."
-                    });
+                    return sendErrorMessage(404, "Fail", response, "This Bucketlist does not exist.");  
                 }
             }else{ //Return an error if the user is not associated with the bucketlist
-                return response.status(403).json({
-                    status: "Fail",
-                    message: "You cannot interact with a bucketlist that does not belong to you."
-                });
+                return sendErrorMessage(403, "Fail", response, "You cannot interact with a bucketlist that does not belong to you.");  
             }
         } 
     }catch(error){
@@ -211,19 +167,16 @@ exports.deleteBucketlist = async (request, response, next) => {
 
         //Step 2: Return an error if the user is not registered with the app
         if(!user){
-            return response.status(404).json({
-                status: "Fail",
-                message: "We are unable to verify your identity."
-            });
+            return sendErrorMessage(404, "Fail", response, "We are unable to verify your identity.");  
         }
 
         //Step 3: An admin user should be able to delete any bucketlist
         if(user.role == 'admin'){
             const deletedBucketlist =  await BucketList.findByIdAndDelete(request.params.id);
             if(deletedBucketlist){
-                return response.status(200).json({message: "Bucketlist has been successfully deleted"});
+                return sendSuccessMessage(200, "Success", response, "Bucketlist has been successfully deleted");   
             }else{
-                return response.status(404).json({message: "This Bucketlist does not exist."});
+                return sendErrorMessage(404, "Fail", response, "This Bucketlist does not exist.");  
             }
         }else{
             //Step 4: Regular users should be able to delete only their own bucketlists
@@ -231,26 +184,17 @@ exports.deleteBucketlist = async (request, response, next) => {
             if(association){
                 const deletedBucketlist =  await BucketList.findByIdAndDelete(request.params.id);
                 if(deletedBucketlist){
-                    return response.status(200).json({message: "Bucketlist has been successfully deleted"});
-                }else{
                     //Step 5: Delete the bucketlistId from the array of bucketlistsId's belonging to the user.
-                    for(var i = 0; i < user.bucketlists.length; i++){
-                        if(request.params.id == user.bucketlists[i]){
-                            user.bucketlists.splice(i, 1);
-                            //End the loop once the id has been deleted
-                            i = user.bucketlists.length + 1;
-                        }
-                    }
+                    deleteUserBucketlist(request.params.id, user.bucketlists);
                     await User.findByIdAndUpdate(request.params.userid, user, {
                         useFindAndModify:false,
                         new: true
                     });
-                     
-                    return response.status(404).json({message: "This Bucketlist does not exist."});
+                    return sendSuccessMessage(200, "Success", response, "Bucketlist has been successfully deleted");   
                 }
             }else{
                 //Step 6: Return error when regular users try to delete an unassociated bucketlist
-                return response.status(403).json({message: "You cannot delete a bucketlist that does not belong to you."});
+                return sendErrorMessage(403, "Fail", response, "You cannot delete a bucketlist that does not belong to you.");  
             }
         }
     }catch(error){

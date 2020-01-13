@@ -59,7 +59,7 @@ describe("BucketlistController.deleteBucketlist", () => {
 
     test("An admin should be able to delete any bucketlist", async () => {
         User.findById.mockReturnValue(adminUser);
-        const successMessage = {message: "Bucketlist has been successfully deleted"};
+        const successMessage = {status: "Success", message: "Bucketlist has been successfully deleted"};
         BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
         await BucketListController.deleteBucketlist(request, response, next);
         expect(response.statusCode).toBe(200);
@@ -72,7 +72,7 @@ describe("BucketlistController.deleteBucketlist", () => {
         BucketList.findByIdAndDelete.mockReturnValue(null);
         await BucketListController.deleteBucketlist(request, response, next);
         expect(response.statusCode).toBe(404);
-        expect(response._getJSONData()).toStrictEqual({message: "This Bucketlist does not exist."});
+        expect(response._getJSONData()).toStrictEqual({status: "Fail", message: "This Bucketlist does not exist."});
     });
 
     it("should handle errors", async () => {
@@ -88,22 +88,12 @@ describe("BucketlistController.deleteBucketlist", () => {
     test("regular users should be able to delete only their own associated bucketlists", async () => {
         User.findById.mockReturnValue(anotherUserWithBucketlist);
         request.params.id = anotherUserWithBucketlist.bucketlists[0];
-        const successMessage = {message: "Bucketlist has been successfully deleted"};
+        const successMessage = {status: "Success", message: "Bucketlist has been successfully deleted"};
         BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
         await BucketListController.deleteBucketlist(request, response, next);
         expect(response.statusCode).toBe(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(successMessage);
-    });
-
-    test("error when regular users try to delete an associated non-existent bucketlist", async () => {
-        User.findById.mockReturnValue(anotherUserWithBucketlist);
-        request.params.id = anotherUserWithBucketlist.bucketlists[0];
-
-        BucketList.findByIdAndDelete.mockReturnValue(null);
-        await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(404);
-        expect(response._getJSONData()).toStrictEqual({message: "This Bucketlist does not exist."});
     });
 
     test("error when regular user tries to delete a bucketlist that is not their own", async () => {
@@ -116,6 +106,7 @@ describe("BucketlistController.deleteBucketlist", () => {
         expect(response.statusCode).toBe(403);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
             message: "You cannot delete a bucketlist that does not belong to you."
         });
     });
@@ -266,7 +257,7 @@ describe("BucketListController.getSpecificBucketlist", () => {
     it("should return an error if an admin user fails to find the bucketlist", async () => {
         User.findById.mockReturnValue(adminUser);
 
-        const errorMessage = {message: "This Bucketlist does not exist."};
+        const errorMessage = {status: "Fail", message: "This Bucketlist does not exist."};
 
         BucketList.findById.mockReturnValue(null);
         await BucketListController.getSpecificBucketlist(request, response, next);
@@ -290,7 +281,7 @@ describe("BucketListController.getSpecificBucketlist", () => {
         User.findById.mockReturnValue(userWithBucketlist);
         request.params.id = userWithBucketlist.bucketlists[0];
 
-        const errorMessage = {message: "This Bucketlist does not exist."};
+        const errorMessage = {status: "Fail", message: "This Bucketlist does not exist."};
 
         BucketList.findById.mockReturnValue(null);
         await BucketListController.getSpecificBucketlist(request, response, next);
@@ -394,6 +385,7 @@ describe('BucketListController.createBucketList', () => {
         expect(response.statusCode).toBe(401);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
+            status: 'Fail',
             message: "You are not allowed to perform this action."
         });
     });
@@ -409,6 +401,7 @@ describe('BucketListController.createBucketList', () => {
         await BucketListController.createBucketList(request, response, next);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
             message: "Failed to create Bucketlist."
         });
     });
@@ -432,6 +425,7 @@ describe('BucketListController.createBucketList', () => {
         expect(response._isEndCalled()).toBeTruthy();
         expect(response.statusCode).toBe(500);
         expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
             message: "Failed to Associate the User with the Bucketlist."
         });
     });

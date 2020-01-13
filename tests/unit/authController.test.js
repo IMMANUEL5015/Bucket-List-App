@@ -115,7 +115,8 @@ describe("AuthController API", () => {
     test('should return a success message and a token in response', async () => {
         User.create.mockReturnValue(fakeUser);
         await authController.signup(request, response, next);
-        expect(response._getJSONData().status).toBe('User has been Successfully Created');
+        expect(response._getJSONData().status).toBe('Success');
+        expect(response._getJSONData().message).toBe('User has been Successfully Created');
         expect(response._getJSONData().token).toBeTruthy();
     });
 
