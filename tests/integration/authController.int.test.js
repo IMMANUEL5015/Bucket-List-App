@@ -59,8 +59,8 @@ describe("POST " + endpointUrl + signup, () => {
             .send(newUser);
 
         expect(response.body).toStrictEqual({
-            "status": "error",
-            "message": "E11000 duplicate key error collection: bucketlist_App.users index: username_1 dup key: { : \"Immanuel5015\" }"
+            "message": "E11000 duplicate key error collection: bucketlist_App.users index: username_1 dup key: { username: \"Immanuel5015\" }",
+            "status": "error"
         });;
     });
 });
