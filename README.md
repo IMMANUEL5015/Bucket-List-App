@@ -18,9 +18,9 @@ This Web Application has the features indicated below:
 * It allows users to be signed up.
 * It allows users to login and obtain a token.
 * It allows users to reset their passwords if they forget it.
-* It allows a logged in administrator to retrieve all Users data
-* It allows an logged in administrator to retrieve the data of any specific user
-* It allows a looged in regular user to retrieve their own data
+* It allows a logged in administrator to retrieve all Users data.
+* It allows an logged in administrator to retrieve the data of any specific user.
+* It allows a looged in regular user to retrieve their own data.
 
 ### Roles
 * It ensures that users have roles.
@@ -86,7 +86,7 @@ When you forget your password, the following steps must be followed in order to 
 | POST/auth/forgotPassword       | Sends a reset link to the user's email| 
 | PATCH/auth/resetPassword/:token| Resets the user's password            |
 | GET/users                      | Retrieve all Users                    |
-| GET/user                       | Retrieve a specific user              |
+| GET/users/:id                  | Retrieve a specific user              |
 | POST/bucketlists               | Creates a new bucketlist              |
 | GET/bucketlists                | Retrieves all bucketlists             |
 | GET/bucketlists/:id            | Retrieves a single bucketlist         |
@@ -282,7 +282,7 @@ When you forget your password, the following steps must be followed in order to 
 ### Get user
 
 * Request
-     * Endpoint: GET: /users/:id
+     * Endpoint: GET: /users/5e016bc1b437260f3c4e7066
 
     
  * Response
