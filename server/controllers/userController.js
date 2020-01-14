@@ -1,6 +1,8 @@
 const User = require('../models/usermodel');
 const sendErrorMessage = require('../utilities/accessories/sendErrorMessage');
 const sendSuccessMessage = require('../utilities/accessories/sendSuccessMessage');
+const updateUser = require('../utilities/security/users/updateUser');
+
 
 //Get all Users
 exports.getAllUsers = async (request, response, next) => {
@@ -45,4 +47,32 @@ exports.getSpecificUser = async (request, response, next) => {
     }catch(error){
         next(error);
     } 
+}
+
+//Update a specific user's data
+exports.updateUser = async (request, response, next) => {
+    try{
+        let updatedUser;
+        //Step 1: If the logged in user is an admin, then update the user's data
+        if(request.user.role == 'admin'){
+            updatedUser = await updateUser(User, request.params.id, request.body);
+        }else{
+            //Step 2: For regular users, update the data if it belongs to them
+            if(request.user._id == request.params.id){
+                updatedUser = await updateUser(User, request.params.id, request.body);
+            }else{
+                updatedUser = false;
+            }
+        }
+
+        //Step 3: Return an error if the operation failed
+        if(!updatedUser){
+            return sendErrorMessage(400, "Fail", response, "This operation could not be completed.");   
+        }
+
+        //Step 4: If everything goes well, return the updatedData
+        response.status(200).json(updatedUser);
+    }catch(error){
+        next(error);
+    }
 }

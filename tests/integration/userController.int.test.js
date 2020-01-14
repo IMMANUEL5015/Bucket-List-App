@@ -43,7 +43,7 @@ describe("Performing CRUD operations on Users", () => {
     it("should retrieve all users", async () => {
         const response  = await request(app)
             .get('/users')
-            .set('Authorization', 'Bearer ' + token)
+            .set('Authorization', 'Bearer ' + token);
 
         expect(response.statusCode).toBe(200); //Success
         expect(Array.isArray(response.body.message)).toBeTruthy();//Array containing all users
@@ -53,9 +53,20 @@ describe("Performing CRUD operations on Users", () => {
     it("should retrieve all users", async () => {
         const response  = await request(app)
             .get('/users/' + id)
-            .set('Authorization', 'Bearer ' + token)
+            .set('Authorization', 'Bearer ' + token);
 
         expect(response.statusCode).toBe(200); //Success
         expect(response.body.username).toBe("Immanuel5015");//username of the returned user
+    });
+
+    //Update a specific user
+    it("should retrieve all users", async () => {
+        const response  = await request(app)
+            .put('/users/' + id)
+            .set('Authorization', 'Bearer ' + token)
+            .send({"fullName": "Diai Immanuel"});
+
+        expect(response.statusCode).toBe(200); //Success
+        expect(response.body.fullName).toBe("Diai Immanuel");//updated fullName of the returned user
     });
 });

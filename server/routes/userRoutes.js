@@ -6,4 +6,6 @@ const router = express.Router();
 
 router.get('/users', authController.protect, authController.authorize('admin'), userController.getAllUsers);
 router.get('/users/:id', authController.protect, authController.authorize('admin', 'regular'), userController.getSpecificUser);
+router.put('/users/:id', authController.protect, authController.authorize('admin', 'regular'), userController.updateUser);
+
 module.exports = router;

@@ -19,8 +19,10 @@ This Web Application has the features indicated below:
 * It allows users to login and obtain a token.
 * It allows users to reset their passwords if they forget it.
 * It allows a logged in administrator to retrieve all Users data.
-* It allows an logged in administrator to retrieve the data of any specific user.
-* It allows a looged in regular user to retrieve their own data.
+* It allows a logged in administrator to retrieve the data of any specific user.
+* It allows a logged in regular user to retrieve their own data.
+* It allows a logged in administrator to update the data of any specific user.
+* It allows a logged in regular user to update their own data.
 
 ### Roles
 * It ensures that users have roles.
@@ -87,6 +89,7 @@ When you forget your password, the following steps must be followed in order to 
 | PATCH/auth/resetPassword/:token| Resets the user's password            |
 | GET/users                      | Retrieve all Users                    |
 | GET/users/:id                  | Retrieve a specific user              |
+| PUT/users/:id                  | Update a specific user                |
 | POST/bucketlists               | Creates a new bucketlist              |
 | GET/bucketlists                | Retrieves all bucketlists             |
 | GET/bucketlists/:id            | Retrieves a single bucketlist         |
@@ -106,6 +109,7 @@ When you forget your password, the following steps must be followed in order to 
 - [Users](#users)
   - [Get users](#get-users)
   - [Get user](#get-user)
+  - [Update user](#update-user)
 
 - [Bucketlist](#bucketlist)
   - [Create bucketlist](#create-bucketlist)
@@ -300,6 +304,38 @@ When you forget your password, the following steps must be followed in order to 
         "_id": "5e016bc1b437260f3c4e7066",
         "username": "Benjamin25",
         "fullName": "Benjamin Diai",
+        "email": "benjamindiai@gmail.com",
+        "password": "$2a$12$nYmOD5hebKrDYJovF1vKZuqQtNcmwfPqM.KgA1R1jmBElKSp8zpOW",
+        "__v": 128
+    }
+```
+
+### Update user
+
+* Request
+     * Endpoint: PUT: /users/5e016bc1b437260f3c4e7066
+
+    ```
+    {
+        "fullName":"Diai Benjamin"
+    }
+    ```
+    
+ * Response
+      * Status: 200: Ok
+      * Body (application/json)
+ 
+```
+        {
+        "bucketlists": [
+            "5e01725e2f08bf16c44f0a3c",
+            "5e14a39b931a600910072cb2"
+        ],
+        "passwordChangedAt": "2019-12-18T00:00:00.000Z",
+        "role": "regular",
+        "_id": "5e016bc1b437260f3c4e7066",
+        "username": "Benjamin25",
+        "fullName": "Diai Benjamin",
         "email": "benjamindiai@gmail.com",
         "password": "$2a$12$nYmOD5hebKrDYJovF1vKZuqQtNcmwfPqM.KgA1R1jmBElKSp8zpOW",
         "__v": 128

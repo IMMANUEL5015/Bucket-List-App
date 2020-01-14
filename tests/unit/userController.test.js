@@ -123,3 +123,52 @@ describe("userController.getSpecificUser", () => {
         expect(next).toHaveBeenCalledWith(errorMessage);
     });
 });
+
+//Tests for updating a specific user's data
+describe("userController.updateUser", () => {
+    it("should be a function", () => {
+        expect(typeof userController.updateUser).toBe('function');
+    });
+
+    it("An admin can update any user's data", async () => {
+        request.user = adminUser;
+        User.findByIdAndUpdate.mockReturnValue(user); //regular user
+        await userController.updateUser(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(user);
+    });
+
+    it("A regular user can update only their own data", async () => {
+        request.user = user;
+        request.params.id = user._id;
+        User.findByIdAndUpdate.mockReturnValue(user); //regular user
+        await userController.updateUser(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(user);
+    });
+
+    it("should return an error if the user data is not updated", async () => {
+        request.user = user;
+        request.params.id = adminUser._id;
+        User.findByIdAndUpdate.mockReturnValue(adminUser);
+        await userController.updateUser(request, response, next);
+        expect(response.statusCode).toBe(400);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            "status": "Fail",
+            "message": "This operation could not be completed."
+        }); 
+    });
+
+    it("should handle promise rejection errors", async () => {
+        request.user = adminUser;
+        const errorMessage = {message: "An error occured! Please try again."};
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        User.findByIdAndUpdate.mockReturnValue(rejectedPromise);
+        await userController.updateUser(request, response, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+});
