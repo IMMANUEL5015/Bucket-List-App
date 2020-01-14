@@ -2,7 +2,6 @@ const request = require('supertest');
 const app = require('../../server/routes/index');
 const newBucketlist = require('../mock-data/integration/new-bucketlist-int.json');
 const Bucketlist = require('../../server/models/bucketlist.model');
-const User = require('../../server/models/usermodel');
 const baseEndpoint = "/users/5e016bc1b437260f3c4e7066/bucketlists/";
 const minorEndpoint = "/users/5e142a03e8a11b0f88f43585/bucketlists/";
 
@@ -144,16 +143,7 @@ describe("BucketList API Endpoints", () => {
             .delete(baseEndpoint + id)
             .set('Authorization', 'Bearer ' + token);
         expect(response.statusCode).toBe(200);
-        expect(response.body).toStrictEqual({message: "Bucketlist has been successfully deleted"});
-    });
-
-    //Delete an associated bucketlistid where the corresponding bucketlist is non-existent.
-    it("should be able to delete a single Bucketlist", async () => {
-        const response =  await request(app)
-            .delete(baseEndpoint + id)
-            .set('Authorization', 'Bearer ' + token);
-        expect(response.statusCode).toBe(404);
-        expect(response.body).toStrictEqual({message: "This Bucketlist does not exist."});
+        expect(response.body).toStrictEqual({status: "Success", message: "Bucketlist has been successfully deleted"});
     });
     
     //Error when UNAUTHORIZED users try to access a forbidden resource
@@ -166,7 +156,7 @@ describe("BucketList API Endpoints", () => {
         expect(response.statusCode).toBe(403)//Forbidden to access a resource
         expect(response.body).toStrictEqual({
             status: "fail",
-            message: "You do not have permission to access this resource."
+            message: "You do not have permission to perform this action."
         });
     });
 });

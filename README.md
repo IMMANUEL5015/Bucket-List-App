@@ -17,6 +17,7 @@ This Web Application has the features indicated below:
 ### Users
 * It allows users to be signed up.
 * It allows users to login and obtain a token.
+* It allows users to reset their passwords if they forget it.
 
 ### Roles
 * It ensures that users have roles.
@@ -65,23 +66,38 @@ The routes utilizes HTTP response codes to indicate API status and errors.
 ### Authentication
 The Users of this application are assigned a unique token upon a successful signup or login operation. This token is absolutely essential for subsequent HTTP requests to the API for authentication. API requests that are operationalized without authentication will recieve a **fail** response with the status code 401: Unauthorized Access. The token can be attached to the request's header as the value of the **authorization** key.
 
+### Password Reset
+When you forget your password, the following steps must be followed in order to regain control of your account:
+* Make a post request with your email address (the one you used when signing up) to the **forgotPassword** route.
+* A link will be sent to the email address. 
+* With that link, make a patch request to the **resetPassword** route, along with your new password.
+* The new password must be confirmed.
+* You should be logged in automatically. (**Scroll down a little bit to see a demo**).
+
 ### API Endpoints and their Functionality
 
-| Endpoint                      |Function                       |
-|-------------------------------|-------------------------------|
-| POST/auth/signup              | Signs up a user               |
-| POST/auth/login               | Logs in an existing user      |
-| POST/bucketlists              | Creates a new bucketlist      |
-| GET/bucketlists               | Retrieves all bucketlists     |
-| GET/bucketlists/:id           | Retrieves a single bucketlist |
-| PUT/bucketlists/:id           | Edit and Update a bucketlist  |
-| DELETE/bucketlists/:id        | Delete a bucketlist           |
+| Endpoint                       |Function                               |
+|--------------------------------|---------------------------------------|
+| POST/auth/signup               | Signs up a user                       |
+| POST/auth/login                | Logs in an existing user              |
+| POST/auth/forgotPassword       | Sends a reset link to the user's email| 
+| PATCH/auth/resetPassword/:token| Resets the user's password            | 
+| POST/bucketlists               | Creates a new bucketlist              |
+| GET/bucketlists                | Retrieves all bucketlists             |
+| GET/bucketlists/:id            | Retrieves a single bucketlist         |
+| PUT/bucketlists/:id            | Edit and Update a bucketlist          |
+| DELETE/bucketlists/:id         | Delete a bucketlist                   |
  
 
 ### Sample Requests and Responses From the API
 - [auth](#auth)
   - [Signup user](#signup-user)
   - [Login user](#login-user)
+
+- [Reset password](#reset-password)
+  - [Forgot password](#forgot-password)
+  - [Reset password](#reset-password)
+
 - [Bucketlist](#bucketlist)
   - [Create bucketlist](#create-bucketlist)
   - [Get bucketlists](#get-bucketlists)
@@ -156,6 +172,59 @@ The Users of this application are assigned a unique token upon a successful sign
     "status": "Success",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZWY2OTA1M2MzYTg3MWQ0NDQ5MDk5MSIsImlhdCI6MTU3NTk3MTczMCwiZXhwIjoxNTc4NTYzNzMwfQ.x8u_VwlX9efqeOoy63HWkjCRmd8es73J1iHoHwK4lS8"
 }
+```
+
+### Reset password
+   - Forgot password
+   - Reset password
+
+### Forgot password
+
+* Request
+     * Endpoint: POST: auth/forgotPassword/
+     * Body (application/json)
+     
+    ```
+     {
+    "email": "uniqueuser@gmail.com",
+    }
+    ```
+   
+* Response
+    * Status: 200: Success
+    * Body (application/json)
+ 
+```
+    {
+        "status": "Success",
+        "message": "Your reset link has been sent to your email address.",
+        "yourResetToken": "836dea2ef0823c1563010eaa7184eca32e2d33a8f8d55cf66f0703ec27f43ec3"
+    }
+```
+
+### Reset password
+
+* Request
+     * Endpoint: PATCH: auth/resetPassword/836dea2ef0823c1563010eaa7184eca32e2d33a8f8d55cf66f0703ec27f43ec3
+     * Body (application/json)
+     
+    ```
+     {
+    "password": "longpassword",
+    "confirmpassword": "longpassword",
+    }
+   ```
+   
+* Response
+    * Status: 200: Ok
+    * Body (application/json)
+    
+ ```
+    {
+        "status": "Successful!",
+        "message": "Your Password Has Been Changed Successfully!",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlMTQzYzBhYmVhZjBkMDNkNDRiNjA0ZCIsImlhdCI6MTU3ODc1NjUyMywiZXhwIjoxNTgxMzQ4NTIzfQ.S4VkkwOmERVvthh6nKC1a45FqobcJsehMlQokuqEy5w"
+    }
 ```
 
 ### Bucketlist
