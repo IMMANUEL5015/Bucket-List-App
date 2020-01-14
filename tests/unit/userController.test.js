@@ -3,6 +3,8 @@ const User = require('../../server/models/usermodel');
 const httpMocks = require('node-mocks-http');
 const allUsers = require('../mock-data/unit/users/allUsers.json');
 const adminUser = require('../mock-data/unit/users/new-admin-user.json');
+const newUser = require('../mock-data/unit/users/new-user-unit.json');
+const user = require('../mock-data/unit/users/user.json');
 
 jest.mock('../../server/models/usermodel');
 
@@ -55,6 +57,69 @@ describe("userController.getAllUsers", () => {
 
         User.find.mockReturnValue(rejectedPromise);
         await userController.getAllUsers(request, response, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+});
+
+//Tests for getting a specific user
+describe("userController.getSpecificUser", () => {
+    it("should be a function", () => {
+        expect(typeof userController.getSpecificUser).toBe('function');
+    });
+
+    it("should call User.findById", async () => {
+        request.params.id = userid;
+        await userController.getSpecificUser(request, response, next);
+        expect(User.findById).toHaveBeenCalledWith(userid);
+    });
+
+    it("should return an error if the user does not exist", async () => {
+        User.findById.mockReturnValue(null);
+        await userController.getSpecificUser(request, response, next);
+        expect(response.statusCode).toBe(404);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            "status": "Fail",
+            "message": "This user does not exist."
+        }); 
+    });
+
+    it("should return the user data if the requesting user is an admin", async () => {
+        request.user = adminUser;
+        User.findById.mockReturnValue(adminUser);
+        await userController.getSpecificUser(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(adminUser);
+    });
+
+    test("error if a regular user is requesting for another user's data", async () => {
+        request.user = user;
+        User.findById.mockReturnValue(newUser);
+        await userController.getSpecificUser(request, response, next);
+        expect(response.statusCode).toBe(403);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
+            message: "You are forbidden from interacting with this resource."
+        });
+    });
+
+    it("Return the data if a regular user is requesting for his own data", async () => {
+        request.user = user;
+        User.findById.mockReturnValue(user);
+        await userController.getSpecificUser(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual(user);
+    });
+
+    it("should handle promise rejection errors", async () => {
+        const errorMessage = {message: "An error occured! Please try again."};
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        User.findById.mockReturnValue(rejectedPromise);
+        await userController.getSpecificUser(request, response, next);
         expect(next).toHaveBeenCalledWith(errorMessage);
     });
 });

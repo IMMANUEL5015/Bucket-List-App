@@ -48,4 +48,14 @@ describe("Performing CRUD operations on Users", () => {
         expect(response.statusCode).toBe(200); //Success
         expect(Array.isArray(response.body.message)).toBeTruthy();//Array containing all users
     });
+
+    //Getting a specific user
+    it("should retrieve all users", async () => {
+        const response  = await request(app)
+            .get('/users/' + id)
+            .set('Authorization', 'Bearer ' + token)
+
+        expect(response.statusCode).toBe(200); //Success
+        expect(response.body.username).toBe("Immanuel5015");//username of the returned user
+    });
 });
