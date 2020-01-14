@@ -1,0 +1,22 @@
+[
+    {
+        "username": "Immanuel50",
+        "fullName": "Immanuel Diai",
+        "email": "immanueldiai@gmail.com",
+        "photo": "https://www.touchepussycat.com",
+        "password": "immanuelDiai345",
+        "confirmPassword": "immanuelDiai345",
+        "bucketlists": [],
+        "role": "regular"
+    },
+    {
+        "username": "Raphael5015",
+        "fullName": "Raphael Diai",
+        "email": "raphaeldiai@gmail.com",
+        "photo": "https://www.thepussycat.com",
+        "password": "raphaeldiai",
+        "confirmPassword": "raphaeldiai",
+        "bucketlists": [],
+        "role": "admin"
+    }
+]

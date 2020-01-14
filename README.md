@@ -18,6 +18,7 @@ This Web Application has the features indicated below:
 * It allows users to be signed up.
 * It allows users to login and obtain a token.
 * It allows users to reset their passwords if they forget it.
+* It allows an administrator to retrieve all Users data
 
 ### Roles
 * It ensures that users have roles.
@@ -81,7 +82,8 @@ When you forget your password, the following steps must be followed in order to 
 | POST/auth/signup               | Signs up a user                       |
 | POST/auth/login                | Logs in an existing user              |
 | POST/auth/forgotPassword       | Sends a reset link to the user's email| 
-| PATCH/auth/resetPassword/:token| Resets the user's password            | 
+| PATCH/auth/resetPassword/:token| Resets the user's password            |
+| GET/users                      | Retrieve all Users
 | POST/bucketlists               | Creates a new bucketlist              |
 | GET/bucketlists                | Retrieves all bucketlists             |
 | GET/bucketlists/:id            | Retrieves a single bucketlist         |
@@ -90,13 +92,16 @@ When you forget your password, the following steps must be followed in order to 
  
 
 ### Sample Requests and Responses From the API
-- [auth](#auth)
+- [Auth](#auth)
   - [Signup user](#signup-user)
   - [Login user](#login-user)
 
 - [Reset password](#reset-password)
   - [Forgot password](#forgot-password)
   - [Reset password](#reset-password)
+
+- [Users](#users)
+  - [Get users](#get-users)
 
 - [Bucketlist](#bucketlist)
   - [Create bucketlist](#create-bucketlist)
@@ -106,7 +111,7 @@ When you forget your password, the following steps must be followed in order to 
   - [Delete bucketlist](#delete-bucketlist)
 
   
- ### auth
+ ### Auth
    - signup
    - login
 
@@ -225,6 +230,50 @@ When you forget your password, the following steps must be followed in order to 
         "message": "Your Password Has Been Changed Successfully!",
         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlMTQzYzBhYmVhZjBkMDNkNDRiNjA0ZCIsImlhdCI6MTU3ODc1NjUyMywiZXhwIjoxNTgxMzQ4NTIzfQ.S4VkkwOmERVvthh6nKC1a45FqobcJsehMlQokuqEy5w"
     }
+```
+
+### Users
+### Get users
+
+* Request
+     * Endpoint: GET: /users
+
+    
+ * Response
+      * Status: 200: Ok
+      * Body (application/json)
+ 
+```
+  {
+    "status": "Success",
+    "message": [
+        {
+            "bucketlists": [
+                "5e01725e2f08bf16c44f0a3c",
+                "5e14a39b931a600910072cb2"
+            ],
+            "passwordChangedAt": "2019-12-18T00:00:00.000Z",
+            "role": "regular",
+            "_id": "5e016bc1b437260f3c4e5379",
+            "username": "Benjamin25",
+            "fullName": "Benjamin Diai",
+            "email": "benjamindiai@gmail.com",
+            "password": "$2a$12$nYmOD5hebKrDYJovF1vKZuqQtNcmwfPqM.KgA1R1jmBElKSp8zpOW",
+            "__v": 128
+        },
+        {
+            "bucketlists": [],
+            "passwordChangedAt": "2019-12-26T00:00:00.000Z",
+            "role": "regular",
+            "_id": "5e0229837209a01ce0a5a8cd",
+            "username": "Immanuel50",
+            "fullName": "Immanuel Diai",
+            "email": "immanueldiai@gmail.com",
+            "password": "$2a$12$4JXHx4beO586AXIWrPbqcuBGZjVpzo2s9qNKYyw0LbjNlFwsFJrEu",
+            "__v": 0
+        },
+    ]
+}
 ```
 
 ### Bucketlist

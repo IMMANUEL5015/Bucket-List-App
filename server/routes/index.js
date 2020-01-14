@@ -3,6 +3,7 @@ const mongodb = require('../mongodb/mongodb.connect');
 
 const bucketlistRoutes = require('./bucketlist-routes');
 const authRoutes = require('./authRoutes');
+const userRoutes = require('./userRoutes');
 const errorHandlingMiddleware = require('../controllers/errorController');
 
 const app = express();
@@ -13,6 +14,8 @@ app.use(express.json());
 
 app.use('/users', bucketlistRoutes);
 app.use('/auth', authRoutes);
+app.use(userRoutes);
+
 
 app.get('/health', (request, response) => {
     response.status(200).send({message: "Bucket List App Started Successfully"});

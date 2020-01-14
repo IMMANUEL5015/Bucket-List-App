@@ -2,15 +2,15 @@
 const BucketListController = require('../../server/controllers/bucketlist.controller');
 const BucketList = require('../../server/models/bucketlist.model');
 const httpMocks = require('node-mocks-http');
-const newBucketList = require('../mock-data/unit/new-bucketlist-unit.json');
-const updatedBucketList = require('../mock-data/unit/updated-bucketlist.json');
-const oneUserBucketLists = require('../mock-data/unit/one-user-bucketlists-unit.json');
-const allBucketLists = require('../mock-data/unit/all-bucketlists.json');
+const newBucketList = require('../mock-data/unit/bucketlists/new-bucketlist-unit.json');
+const updatedBucketList = require('../mock-data/unit/bucketlists/updated-bucketlist.json');
+const oneUserBucketLists = require('../mock-data/unit/bucketlists/one-user-bucketlists-unit.json');
+const allBucketLists = require('../mock-data/unit/bucketlists/all-bucketlists.json');
 const User = require('../../server/models/usermodel');
-const newUser = require('../mock-data/unit/new-user-unit.json');
-const adminUser = require('../mock-data/unit/new-admin-user.json');
-const userWithBucketlist = require('../mock-data/unit/user-with-bucketlist.json');
-const anotherUserWithBucketlist = require('../mock-data/unit/another-user-with-bucketlists.json');
+const newUser = require('../mock-data/unit/users/new-user-unit.json');
+const adminUser = require('../mock-data/unit/users/new-admin-user.json');
+const userWithBucketlist = require('../mock-data/unit/users/user-with-bucketlist.json');
+const anotherUserWithBucketlist = require('../mock-data/unit/users/another-user-with-bucketlists.json');
 
 
 //Mock the BucketList Model methods

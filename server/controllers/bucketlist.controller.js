@@ -1,9 +1,9 @@
-const sendErrorMessage = require('../utilities/sendErrorMessage');
-const sendSuccessMessage = require('../utilities/sendSuccessMessage');
-const confirmDataAssociation = require('../utilities/confirmDataAssociation');
+const sendErrorMessage = require('../utilities/accessories/sendErrorMessage');
+const sendSuccessMessage = require('../utilities/accessories/sendSuccessMessage');
+const confirmDataAssociation = require('../utilities/security/bucketlists/confirmDataAssociation');
 const BucketList = require('../models/bucketlist.model');
 const User = require('../models/usermodel');
-const deleteUserBucketlist = require('../utilities/deleteUserBucketlist');
+const deleteUserBucketlist = require('../utilities/security/bucketlists/deleteUserBucketlist');
 
 //Create a new Bucketlist - Both administrators and normal users can create a new bucketlist
 exports.createBucketList = async (request, response, next) => {

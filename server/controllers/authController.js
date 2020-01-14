@@ -1,13 +1,14 @@
-const loggingInUsers = require('../utilities/loggingInUsers');
+const loggingInUsers = require('../utilities/security/token/loggingInUsers');
+const loginUserAfterSignup = require('../utilities/security/token/loginUserAfterSignup');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/usermodel');
 const bcrypt = require('bcryptjs');
-const sendEmail = require('../utilities/email');
-const generateResetToken = require('../utilities/generateResetToken');
-const encryptResetToken = require('../utilities/encryptResetToken');
-const tokenHasExpired = require('../utilities/tokenHasExpired');
-const sendErrorMessage = require('../utilities/sendErrorMessage');
+const sendEmail = require('../utilities/accessories/email');
+const generateResetToken = require('../utilities/security/token/generateResetToken');
+const encryptResetToken = require('../utilities/security/token/encryptResetToken');
+const tokenHasExpired = require('../utilities/security/token/tokenHasExpired');
+const sendErrorMessage = require('../utilities/accessories/sendErrorMessage');
 
 //Signup user
 exports.signup = async(request, response, next) => {
@@ -25,7 +26,7 @@ exports.signup = async(request, response, next) => {
         });
 
         //Login the user immediately
-        return loggingInUsers(newUser._id, 201, response, 'Success', 'User has been Successfully Created');
+        return loginUserAfterSignup(newUser._id, 201, response, 'Success', 'User has been Successfully Created', newUser);
     }catch(error){
         next(error);
     }
