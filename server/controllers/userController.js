@@ -99,9 +99,7 @@ exports.deleteUser = async (request, response, next) => {
         }
     
         //Step 4: Return a success message if the operation goes smoothly
-        if(deletedUser){
-            return sendSuccessMessage(200, "Success", response, "This account has been successfully deleted.");
-        }
+        return sendSuccessMessage(200, "Success", response, "This account has been successfully deleted.");
     }catch(error){
         next(error);
     }
