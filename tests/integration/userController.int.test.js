@@ -50,7 +50,7 @@ describe("Performing CRUD operations on Users", () => {
     });
 
     //Getting a specific user
-    it("should retrieve all users", async () => {
+    it("should retrieve a specific user", async () => {
         const response  = await request(app)
             .get('/users/' + id)
             .set('Authorization', 'Bearer ' + token);
@@ -60,7 +60,7 @@ describe("Performing CRUD operations on Users", () => {
     });
 
     //Update a specific user
-    it("should retrieve all users", async () => {
+    it("should update a specific user", async () => {
         const response  = await request(app)
             .put('/users/' + id)
             .set('Authorization', 'Bearer ' + token)
@@ -68,5 +68,18 @@ describe("Performing CRUD operations on Users", () => {
 
         expect(response.statusCode).toBe(200); //Success
         expect(response.body.fullName).toBe("Diai Immanuel");//updated fullName of the returned user
+    });
+
+    //Delete a specific user
+    it("should delete a specific user", async () => {
+        const response  = await request(app)
+            .delete('/users/' + id)
+            .set('Authorization', 'Bearer ' + token)
+
+        expect(response.statusCode).toBe(200); //Success
+        expect(response.body).toStrictEqual({
+            "status": "Success",
+            "message": "This account has been successfully deleted."
+        });
     });
 });

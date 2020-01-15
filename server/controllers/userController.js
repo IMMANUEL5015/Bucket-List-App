@@ -76,3 +76,33 @@ exports.updateUser = async (request, response, next) => {
         next(error);
     }
 }
+
+//Delete a specific user
+exports.deleteUser = async (request, response, next) => {
+    try{
+        let deletedUser;
+        //Step 1: An admin should be able to delete any user
+        if(request.user.role == 'admin'){
+            deletedUser = await User.findByIdAndDelete(request.params.id);
+        }else{
+            //Step 2: A regular user should be able to delete only their own account
+            if(request.user._id == request.params.id){
+                deletedUser = await User.findByIdAndDelete(request.params.id);
+            }else{
+                deletedUser = false;
+            }
+        }
+    
+        //Step 3: Return an error if the operation was not successful
+        if(!deletedUser){
+            return sendErrorMessage(400, "Fail", response, "This operation could not be completed.");   
+        }
+    
+        //Step 4: Return a success message if the operation goes smoothly
+        if(deletedUser){
+            return sendSuccessMessage(200, "Success", response, "This account has been successfully deleted.");
+        }
+    }catch(error){
+        next(error);
+    }
+}

@@ -23,6 +23,8 @@ This Web Application has the features indicated below:
 * It allows a logged in regular user to retrieve their own data.
 * It allows a logged in administrator to update the data of any specific user.
 * It allows a logged in regular user to update their own data.
+* It allows a logged in administrator to delete the account of any specific user.
+* It allows a logged in regular user to delete their own account.
 
 ### Roles
 * It ensures that users have roles.
@@ -90,6 +92,7 @@ When you forget your password, the following steps must be followed in order to 
 | GET/users                      | Retrieve all Users                    |
 | GET/users/:id                  | Retrieve a specific user              |
 | PUT/users/:id                  | Update a specific user                |
+| DELETE/users/:id               | Delete a  user's account              |
 | POST/bucketlists               | Creates a new bucketlist              |
 | GET/bucketlists                | Retrieves all bucketlists             |
 | GET/bucketlists/:id            | Retrieves a single bucketlist         |
@@ -110,6 +113,7 @@ When you forget your password, the following steps must be followed in order to 
   - [Get users](#get-users)
   - [Get user](#get-user)
   - [Update user](#update-user)
+  - [Delete user](#delete-user)
 
 - [Bucketlist](#bucketlist)
   - [Create bucketlist](#create-bucketlist)
@@ -339,6 +343,21 @@ When you forget your password, the following steps must be followed in order to 
         "email": "benjamindiai@gmail.com",
         "password": "$2a$12$nYmOD5hebKrDYJovF1vKZuqQtNcmwfPqM.KgA1R1jmBElKSp8zpOW",
         "__v": 128
+    }
+```
+### Delete user
+
+* Request
+     * Endpoint: DELETE: /users/5e016bc1b437260f3c4e7066
+    
+ * Response
+      * Status: 200: Ok
+      * Body (application/json)
+ 
+```
+    {
+        "status": "Success",
+        "message": "This account has been successfully deleted."
     }
 ```
 

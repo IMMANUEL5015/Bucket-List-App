@@ -172,3 +172,58 @@ describe("userController.updateUser", () => {
         expect(next).toHaveBeenCalledWith(errorMessage);
     });
 });
+
+//Tests for deleting a specific user's data
+describe("userController.deleteUser", () => {
+    it("should be a function", () => {
+        expect(typeof userController.deleteUser).toBe('function');
+    });
+
+    test("An admin should be able to delete any user", async () => {
+        request.user = adminUser;
+        User.findByIdAndDelete.mockReturnValue(user);
+        await userController.deleteUser(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Success",
+            message: "This account has been successfully deleted."
+        });
+    });
+
+    test("A regular user should be able to delete only their own account", async () => {
+        request.user = user;
+        request.params.id = user._id;
+        User.findByIdAndDelete.mockReturnValue(user);
+        await userController.deleteUser(request, response, next);
+        expect(response.statusCode).toBe(200);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Success",
+            message: "This account has been successfully deleted."
+        });
+    });
+
+    it("should return an error if the operation failed", async () => {
+        request.user = user;
+        request.params.id = adminUser._id;
+        User.findByIdAndDelete.mockReturnValue(adminUser);
+        await userController.deleteUser(request, response, next);
+        expect(response.statusCode).toBe(400);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            "status": "Fail",
+            "message": "This operation could not be completed."
+        }); 
+    });
+
+    it("should handle promise rejection errors", async () => {
+        request.user = adminUser;
+        const errorMessage = {message: "An error occured! Please try again."};
+        const rejectedPromise = Promise.reject(errorMessage);
+
+        User.findByIdAndDelete.mockReturnValue(rejectedPromise);
+        await userController.deleteUser(request, response, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+});
