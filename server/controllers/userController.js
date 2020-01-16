@@ -2,7 +2,7 @@ const User = require('../models/usermodel');
 const loggingInUsers = require('../utilities/security/token/loggingInUsers');
 const sendErrorMessage = require('../utilities/accessories/sendErrorMessage');
 const sendSuccessMessage = require('../utilities/accessories/sendSuccessMessage');
-const updateUser = require('../utilities/security/users/updateUser');
+const update = require('../utilities/accessories/update');
 const confirmExistingPassword = require('../utilities/security/users/confirmExistingPassword');
 
 
@@ -57,11 +57,11 @@ exports.updateUser = async (request, response, next) => {
         let updatedUser;
         //Step 1: If the logged in user is an admin, then update the user's data
         if(request.user.role == 'admin'){
-            updatedUser = await updateUser(User, request.params.id, request.body);
+            updatedUser = await update(User, request.params.id, request.body);
         }else{
             //Step 2: For regular users, update the data if it belongs to them
             if(request.user._id == request.params.id){
-                updatedUser = await updateUser(User, request.params.id, request.body);
+                updatedUser = await update(User, request.params.id, request.body);
             }else{
                 updatedUser = false;
             }

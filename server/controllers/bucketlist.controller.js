@@ -4,6 +4,8 @@ const confirmDataAssociation = require('../utilities/security/bucketlists/confir
 const BucketList = require('../models/bucketlist.model');
 const User = require('../models/usermodel');
 const deleteUserBucketlist = require('../utilities/security/bucketlists/deleteUserBucketlist');
+const getBucketlists = require('../utilities/security/bucketlists/getBucketlists');
+const update = require('../utilities/accessories/update');
 
 //Create a new Bucketlist - Both administrators and normal users can create a new bucketlist
 exports.createBucketList = async (request, response, next) => {
@@ -23,10 +25,7 @@ exports.createBucketList = async (request, response, next) => {
 
         //Associate the created Bucketlist with the user
         user.bucketlists.push(bucketlist);
-        const updatedUser = await User.findByIdAndUpdate(request.params.userid, user, {
-            new: true,
-            useFindAndModify: false
-        });
+        const updatedUser = await update(User, request.params.userid, user);
 
         if(!updatedUser){//Error if the user is not associated with the Bucketlist
             return sendErrorMessage(500, "Fail", response, "Failed to Associate the User with the Bucketlist.");   
@@ -58,10 +57,8 @@ exports.getBucketlists = async (request, response, next) => {
             return response.status(200).json(allBucketlists);  
         }else{
             //Normal users can get only all of their own associated bucketlists
-            const singleUserBucketlists = user.bucketlists;
-            for(var i = 0; i < singleUserBucketlists.length; i++){
-                allBucketlists.push(await BucketList.findById(singleUserBucketlists[i]));
-            }
+            await getBucketlists(allBucketlists, user.bucketlists, BucketList);
+            
             return response.status(200).json(allBucketlists);
         }
     }catch(error){
@@ -85,10 +82,7 @@ exports.updateBucketList =  async (request, response, next) => {
 
         //Step 3: An admin should be able to update any bucketlist
         if(user.role == 'admin'){
-            const updatedBucketlist = await BucketList.findByIdAndUpdate(request.params.id, request.body, {
-                new: true,
-                useFindAndModify: false
-            });
+            const updatedBucketlist = await update(BucketList, request.params.id, request.body);
     
             if(updatedBucketlist){
                 return response.status(200).json(updatedBucketlist);
@@ -99,10 +93,7 @@ exports.updateBucketList =  async (request, response, next) => {
             //Step 4: Regular users can update only their own associated specific bucketlist
             const associationStatus = confirmDataAssociation(request.params.id, user.bucketlists);
             if(associationStatus){
-                const updatedBucketlist = await BucketList.findByIdAndUpdate(request.params.id, request.body, {
-                    new: true,
-                    useFindAndModify: false
-                });
+                const updatedBucketlist = await update(BucketList, request.params.id, request.body);
         
                 if(updatedBucketlist){
                     return response.status(200).json(updatedBucketlist);
@@ -186,10 +177,7 @@ exports.deleteBucketlist = async (request, response, next) => {
                 if(deletedBucketlist){
                     //Step 5: Delete the bucketlistId from the array of bucketlistsId's belonging to the user.
                     deleteUserBucketlist(request.params.id, user.bucketlists);
-                    await User.findByIdAndUpdate(request.params.userid, user, {
-                        useFindAndModify:false,
-                        new: true
-                    });
+                    await update(User, request.params.userid, user);
                     return sendSuccessMessage(200, "Success", response, "Bucketlist has been successfully deleted");   
                 }
             }else{

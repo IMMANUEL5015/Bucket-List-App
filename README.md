@@ -82,7 +82,7 @@ When you forget your password, the following steps must be followed in order to 
 * The new password must be confirmed.
 * You should be logged in automatically. (**Scroll down a little bit to see a demo**).
 
-### Update Password
+### Password Update
 When your password is compromised, you can still change it even when you have not forgotten it.
 
 All you need to do is follow these steps:
