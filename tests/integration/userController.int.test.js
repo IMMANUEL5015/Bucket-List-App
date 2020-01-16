@@ -70,6 +70,22 @@ describe("Performing CRUD operations on Users", () => {
         expect(response.body.fullName).toBe("Diai Immanuel");//updated fullName of the returned user
     });
 
+    //Update a specific user
+    it("should update the password of a specific user", async () => {
+        const response  = await request(app)
+            .patch('/users/' + id + "/updateuserpassword")
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+                "currentPassword": "immanuelDiai345",
+                "newPassword": "immanuelDiai34",
+                "confirmNewPassword": "immanuelDiai34"
+            });
+
+        expect(response.statusCode).toBe(200); //Success
+        expect(response.body.message).toStrictEqual("You are now logged into the application.");
+        token = response.body.token;
+    });
+
     //Delete a specific user
     it("should delete a specific user", async () => {
         const response  = await request(app)

@@ -1,7 +1,9 @@
 const User = require('../models/usermodel');
+const loggingInUsers = require('../utilities/security/token/loggingInUsers');
 const sendErrorMessage = require('../utilities/accessories/sendErrorMessage');
 const sendSuccessMessage = require('../utilities/accessories/sendSuccessMessage');
 const updateUser = require('../utilities/security/users/updateUser');
+const confirmExistingPassword = require('../utilities/security/users/confirmExistingPassword');
 
 
 //Get all Users
@@ -75,6 +77,29 @@ exports.updateUser = async (request, response, next) => {
     }catch(error){
         next(error);
     }
+}
+
+//Update user password
+exports.updateUserPassword = async (request, response, next) => {
+    const user = request.user; //The logged in user
+
+    //Step 1: Error if a  logged in user attempts to change another user's password
+    if(user._id != request.params.id){
+        return sendErrorMessage(403, "Fail", response, "You are not allowed to perform this action.");   
+    }
+
+    //Step 2: Error if the user does not know the existing password
+    const passwordIsCorrect = await confirmExistingPassword(request.body.currentPassword, user.password);
+    if(!passwordIsCorrect){
+        return sendErrorMessage(400, "Incorrect Data", response, "Please enter the existing password.");   
+    }
+    //Step 3: Replace the old password with the new one
+    user.password = request.body.newPassword;
+    user.confirmPassword = request.body.confirmNewPassword;
+    await user.save();
+
+    //Step 4: Log the user in
+    return loggingInUsers(user._id, 200, response,'Success', 'You are now logged into the application.');
 }
 
 //Delete a specific user

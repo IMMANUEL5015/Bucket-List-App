@@ -173,6 +173,39 @@ describe("userController.updateUser", () => {
     });
 });
 
+
+//Tests for updating user's password
+describe("userController.updateUserPassword", () => {
+    it("should be a function", () => {
+        expect(typeof userController.updateUserPassword).toBe('function');
+    });
+
+    test("error when a user attempts to change another user's password", async () => {
+        request.user = user;
+        request.params.id = adminUser._id;
+        await userController.updateUserPassword(request, response, next);
+        expect(response.statusCode).toBe(403);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Fail",
+            message: "You are not allowed to perform this action."
+        })
+    });
+
+    test("error when the user does not know the existing password", async () => {
+        request.user = user;
+        request.params.id = user._id;
+        request.body.currentPassword = adminUser.password;
+        await userController.updateUserPassword(request, response, next);
+        expect(response.statusCode).toBe(400);
+        expect(response._isEndCalled()).toBeTruthy();
+        expect(response._getJSONData()).toStrictEqual({
+            status: "Incorrect Data",
+            message: "Please enter the existing password."
+        });
+    });
+});
+
 //Tests for deleting a specific user's data
 describe("userController.deleteUser", () => {
     it("should be a function", () => {

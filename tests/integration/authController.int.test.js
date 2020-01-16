@@ -14,13 +14,13 @@ const signup = "/signup"
 const login = "/login"
 
 //Endpoint for forgotten passwords
-const forgotPassword = "/auth/forgotPassword";
+const forgotPassword = "/auth/forgotpassword";
 
 //Test Reset Token
 let resetToken;
 
 //Endpoint for resetting passwords
-const resetPassword = "/auth/resetPassword/";
+const resetPassword = "/auth/resetpassword/";
 
 //Signing up a user
 describe("POST " + endpointUrl + signup, () => {
