@@ -37,13 +37,13 @@ beforeEach(() => {
 //Tests for deleting a specific Bucketlist
 describe("BucketlistController.deleteBucketlist", () => {
     it("should be a function", () => {
-        expect(typeof BucketListController.deleteBucketlist).toBe("function");
+        expect(typeof BucketListController.deleteBucketlist).toStrictEqual("function");
     });
 
     it("should return an error if user is not found", async () => {
         request.user = null;
         await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect( response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -56,7 +56,7 @@ describe("BucketlistController.deleteBucketlist", () => {
         const successMessage = {status: "Success", message: "Bucketlist has been successfully deleted"};
         BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
         await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(successMessage);
     });
@@ -65,7 +65,7 @@ describe("BucketlistController.deleteBucketlist", () => {
         request.user = adminUser;
         BucketList.findByIdAndDelete.mockReturnValue(null);
         await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._getJSONData()).toStrictEqual({status: "Fail", message: "This Bucketlist does not exist."});
     });
 
@@ -85,7 +85,7 @@ describe("BucketlistController.deleteBucketlist", () => {
         const successMessage = {status: "Success", message: "Bucketlist has been successfully deleted"};
         BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
         await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(successMessage);
     });
@@ -97,7 +97,7 @@ describe("BucketlistController.deleteBucketlist", () => {
         BucketList.findByIdAndUpdate.mockReturnValue(newBucketList);
         await BucketListController.deleteBucketlist(request, response, next);
 
-        expect(response.statusCode).toBe(403);
+        expect(response.statusCode).toStrictEqual(403);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -109,13 +109,13 @@ describe("BucketlistController.deleteBucketlist", () => {
 //Tests for updating a single bucketlist
 describe("BucketListController.updateBucketList", () => {
     it('should be a function', () => {
-        expect(typeof BucketListController.updateBucketList).toBe('function');
+        expect(typeof BucketListController.updateBucketList).toStrictEqual('function');
     });
 
     it("should return an error if the user is not found", async () => {
         request.user = null;
         await BucketListController.updateBucketList(request, response, next);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -141,7 +141,7 @@ describe("BucketListController.updateBucketList", () => {
 
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._getJSONData()).toStrictEqual(updatedBucketList);
     });
 
@@ -150,7 +150,7 @@ describe("BucketListController.updateBucketList", () => {
         BucketList.findByIdAndUpdate.mockReturnValue(null);
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Not Found",
@@ -165,7 +165,7 @@ describe("BucketListController.updateBucketList", () => {
 
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._getJSONData()).toStrictEqual(updatedBucketList);
     });
 
@@ -176,7 +176,7 @@ describe("BucketListController.updateBucketList", () => {
         BucketList.findByIdAndUpdate.mockReturnValue(null);
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Not Found",
@@ -191,7 +191,7 @@ describe("BucketListController.updateBucketList", () => {
         BucketList.findByIdAndUpdate.mockReturnValue(updatedBucketList);
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(403);
+        expect(response.statusCode).toStrictEqual(403);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -214,13 +214,13 @@ describe("BucketListController.updateBucketList", () => {
 //Tests for getting a specific bucketlist
 describe("BucketListController.getSpecificBucketlist", () => {
     it("should be a function", () => {
-        expect(typeof BucketListController.getSpecificBucketlist).toBe("function");
+        expect(typeof BucketListController.getSpecificBucketlist).toStrictEqual("function");
     });
 
     it("should return an error if user is not found", async () => {
         request.user = null;
         await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -231,7 +231,7 @@ describe("BucketListController.getSpecificBucketlist", () => {
         request.user = adminUser;
         BucketList.findById.mockReturnValue(newBucketList);
         await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(newBucketList);
     });  
@@ -244,7 +244,7 @@ describe("BucketListController.getSpecificBucketlist", () => {
         BucketList.findById.mockReturnValue(null);
         await BucketListController.getSpecificBucketlist(request, response, next);
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(errorMessage);
     });
@@ -254,7 +254,7 @@ describe("BucketListController.getSpecificBucketlist", () => {
         request.params.id = userWithBucketlist.bucketlists[0];
         BucketList.findById.mockReturnValue(newBucketList);
         await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(newBucketList);
     });
@@ -268,7 +268,7 @@ describe("BucketListController.getSpecificBucketlist", () => {
         BucketList.findById.mockReturnValue(null);
         await BucketListController.getSpecificBucketlist(request, response, next);
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(errorMessage);
     });
@@ -280,7 +280,7 @@ describe("BucketListController.getSpecificBucketlist", () => {
         BucketList.findById.mockReturnValue(newBucketList);
         await BucketListController.getSpecificBucketlist(request, response, next);
 
-        expect(response.statusCode).toBe(403);
+        expect(response.statusCode).toStrictEqual(403);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -304,12 +304,12 @@ describe("BucketListController.getSpecificBucketlist", () => {
 //Tests for getting all bucketlists
 describe("BucketlistController.getBucketlists", () => {
     it("should be a function", () => {
-        expect(typeof BucketListController.getBucketlists).toBe('function');
+        expect(typeof BucketListController.getBucketlists).toStrictEqual('function');
     });
     it("should return an error message if user is not found", async () => {
         request.user = null;
         await BucketListController.getBucketlists(request, response, next);
-        expect(response.statusCode).toBe(404); //Not Found
+        expect(response.statusCode).toStrictEqual(404); //Not Found
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -320,7 +320,7 @@ describe("BucketlistController.getBucketlists", () => {
         request.user = adminUser;
         BucketList.find.mockReturnValue(allBucketLists);
         await BucketListController.getBucketlists(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(allBucketLists);
     });
@@ -328,7 +328,7 @@ describe("BucketlistController.getBucketlists", () => {
         request.user = userWithBucketlist;
         BucketList.findById.mockReturnValue(newBucketList);
         await BucketListController.getBucketlists(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(oneUserBucketLists);
     });
@@ -349,12 +349,12 @@ describe("BucketlistController.getBucketlists", () => {
 //Unit tests for creating bucketlists
 describe('BucketListController.createBucketList', () => {
     it("should be a function", () => {
-        expect(typeof BucketListController.createBucketList).toBe('function');
+        expect(typeof BucketListController.createBucketList).toStrictEqual('function');
     });
     it("should return an error if user is not found", async () => {
         request.user = null
         await BucketListController.createBucketList(request, response, next);
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toStrictEqual(401);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: 'Fail',
@@ -395,7 +395,7 @@ describe('BucketListController.createBucketList', () => {
         User.findByIdAndUpdate.mockReturnValue(null);
         await BucketListController.createBucketList(request, response, next);
         expect(response._isEndCalled()).toBeTruthy();
-        expect(response.statusCode).toBe(500);
+        expect(response.statusCode).toStrictEqual(500);
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
             message: "Failed to Associate the User with the Bucketlist."
@@ -408,7 +408,7 @@ describe('BucketListController.createBucketList', () => {
         User.findByIdAndUpdate.mockReturnValue(userWithBucketlist);
         await BucketListController.createBucketList(request, response, next);
         expect(response._isEndCalled()).toBeTruthy();
-        expect(response.statusCode).toBe(201);
+        expect(response.statusCode).toStrictEqual(201);
         expect(response._getJSONData()).toStrictEqual(newBucketList);
     });
 
@@ -422,4 +422,3 @@ describe('BucketListController.createBucketList', () => {
         expect(next).toHaveBeenCalledWith(errorMessage);
     });
 });
-
