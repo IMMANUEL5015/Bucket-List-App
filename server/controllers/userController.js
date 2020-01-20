@@ -5,7 +5,7 @@ const sendErrorMessage = require('../utilities/otherUtilities/sendErrorMessage')
 const sendSuccessMessage = require('../utilities/otherUtilities/sendSuccessMessage');
 const update = require('../utilities/otherUtilities/update');
 const confirmExistingPassword = require('../utilities/security/users/confirmExistingPassword');
-
+const status = require('../../config');
 
 //Get all Users
 exports.getAllUsers = async (request, response, next) => {
@@ -15,11 +15,11 @@ exports.getAllUsers = async (request, response, next) => {
 
         //Step 2: Return an error if no data is rerieved
         if(!allUsers){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_404), "Fail", response, "No data was found.");   
+            return sendErrorMessage(status.not_found, "Fail", response, "No data was found.");   
         }
 
         //Step 3: Return all the users
-        return sendSuccessMessage(Number(process.env.STATUS_CODE_200), "Success", response, allUsers);
+        return sendSuccessMessage(status.ok, "Success", response, allUsers);
     }catch(error){
         next(error);
     }   
@@ -33,7 +33,7 @@ exports.getSpecificUser = async (request, response, next) => {
 
         //Step 2: Return an error if the requested user does not exist.
         if(!user){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_404), "Fail", response, "This user does not exist.");   
+            return sendErrorMessage(status.not_found, "Fail", response, "This user does not exist.");   
         }
         //Step 3: Return the requested data if the requesting user is an admin
         if(request.user.role == 'admin'){
@@ -44,7 +44,7 @@ exports.getSpecificUser = async (request, response, next) => {
                 return response.status(200).json(user);
             }else{
                 //Step 4: Return an error if a regular user is requesting for another user's data
-                return sendErrorMessage(Number(process.env.STATUS_CODE_403), "Fail", response, "You are forbidden from interacting with this resource.");   
+                return sendErrorMessage(status.forbidden, "Fail", response, "You are forbidden from interacting with this resource.");   
             }
         }
     }catch(error){
@@ -70,7 +70,7 @@ exports.updateUser = async (request, response, next) => {
 
         //Step 3: Return an error if the operation failed
         if(!updatedUser){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_400), "Fail", response, "This operation could not be completed.");   
+            return sendErrorMessage(status.bad_request, "Fail", response, "This operation could not be completed.");   
         }
 
         //Step 4: If everything goes well, return the updatedData
@@ -86,13 +86,13 @@ exports.updateUserPassword = async (request, response, next) => {
 
     //Step 1: Error if a  logged in user attempts to change another user's password
     if(user._id != request.params.id){
-        return sendErrorMessage(Number(process.env.STATUS_CODE_403), "Fail", response, "You are not allowed to perform this action.");   
+        return sendErrorMessage(status.forbidden, "Fail", response, "You are not allowed to perform this action.");   
     }
 
     //Step 2: Error if the user does not know the existing password
     const passwordIsCorrect = await confirmExistingPassword(request.body.currentPassword, user.password);
     if(!passwordIsCorrect){
-        return sendErrorMessage(Number(process.env.STATUS_CODE_400), "Incorrect Data", response, "Please enter the existing password.");   
+        return sendErrorMessage(status.bad_request, "Incorrect Data", response, "Please enter the existing password.");   
     }
     //Step 3: Replace the old password with the new one
     user.password = request.body.newPassword;
@@ -100,7 +100,7 @@ exports.updateUserPassword = async (request, response, next) => {
     await user.save();
 
     //Step 4: Log the user in
-    return loggingInUsers(user._id, Number(process.env.STATUS_CODE_200), response,'Success', 'You are now logged into the application.');
+    return loggingInUsers(user._id, status.ok, response,'Success', 'You are now logged into the application.');
 }
 
 //Delete a specific user
@@ -121,11 +121,11 @@ exports.deleteUser = async (request, response, next) => {
     
         //Step 3: Return an error if the operation was not successful
         if(!deletedUser){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_400), "Fail", response, "This operation could not be completed.");   
+            return sendErrorMessage(status.bad_request, "Fail", response, "This operation could not be completed.");   
         }
     
         //Step 4: Return a success message if the operation goes smoothly
-        return sendSuccessMessage(Number(process.env.STATUS_CODE_200), "Success", response, "This account has been successfully deleted.");
+        return sendSuccessMessage(status.ok, "Success", response, "This account has been successfully deleted.");
     }catch(error){
         next(error);
     }

@@ -10,6 +10,7 @@ const generateResetToken = require('../utilities/security/token/generateResetTok
 const encryptResetToken = require('../utilities/security/token/encryptResetToken');
 const tokenHasExpired = require('../utilities/security/token/tokenHasExpired');
 const sendErrorMessage = require('../utilities/otherUtilities/sendErrorMessage');
+const status = require('../../config');
 
 //Signup user
 exports.signup = async(request, response, next) => {
@@ -27,7 +28,7 @@ exports.signup = async(request, response, next) => {
         });
 
         //Login the user immediately
-        return loginUserAfterSignup(newUser._id, Number(process.env.STATUS_CODE_201), response, 'Success', 'User has been Successfully Created', newUser);
+        return loginUserAfterSignup(newUser._id, status.created, response, 'Success', 'User has been Successfully Created', newUser);
     }catch(error){
         next(error);
     }
@@ -40,18 +41,18 @@ exports.login = async (request, response, next) => {
 
         //Error occurs when either the password or email field is empty
         if(!email || !password){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_400), "Fail", response, "Please provide your email and password");
+            return sendErrorMessage(status.bad_request, "Fail", response, "Please provide your email and password");
         }
     
         const user = await User.findOne({email: request.body.email});
     
         //Error if user is non-existent or if password is incorrect
         if(!user ||  !(await bcrypt.compare(password, user.password) == true)){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_401), "Fail", response, "Unable to verify. Please provide your correct details.");
+            return sendErrorMessage(status.unauthorized, "Fail", response, "Unable to verify. Please provide your correct details.");
         }
     
         //If verification is successful log the user in
-        return loggingInUsers(user._id, Number(process.env.STATUS_CODE_200), response,'Success', 'You are now logged into the application.');
+        return loggingInUsers(user._id, status.ok, response,'Success', 'You are now logged into the application.');
     }catch(error){
         next(error);
     }
@@ -70,7 +71,7 @@ exports.protect = async (request, response, next) => {
 
         //Return error if token does not exist
         if(!token){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_401), "Fail", response, "We are unable to verify your identity. Please login to gain access");
+            return sendErrorMessage(status.unauthorized, "Fail", response, "We are unable to verify your identity. Please login to gain access");
         }
 
         //Step 2: Verify the token if it exists
@@ -81,14 +82,14 @@ exports.protect = async (request, response, next) => {
 
         //If the user does not exist, return an error
         if(!user){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_401), "Fail", response, "This user does not exist.");
+            return sendErrorMessage(status.unauthorized, "Fail", response, "This user does not exist.");
         }
 
         //Step 4: Check if user has changed password since token was issued
             let timeWhenPasswordWasModified = parseInt(user.passwordChangedAt.getTime() / 1000, 10);
             const timeWhenTokenWasIssued = verified.iat;
             if(timeWhenPasswordWasModified > timeWhenTokenWasIssued){
-                return sendErrorMessage(Number(process.env.STATUS_CODE_401), "Fail", response, "Your password was modified recently. Please login again.");
+                return sendErrorMessage(status.unauthorized, "Fail", response, "Your password was modified recently. Please login again.");
             }
 
         request.user = user //Useful later during authorization
@@ -102,7 +103,7 @@ exports.protect = async (request, response, next) => {
 exports.authorize = (...roles) => {
     return (request, response, next) => {
         if(!roles.includes(request.user.role)){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_403), "fail", response, "You do not have permission to perform this action.");
+            return sendErrorMessage(status.forbidden, "fail", response, "You do not have permission to perform this action.");
         }
         next();
     }
@@ -116,7 +117,7 @@ exports.forgotPassword = async (request, response, next) => {
 
         //Return an error if user is not found
         if(!user){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_404), "Fail", response, "There is no user with that email address.");
+            return sendErrorMessage(status.not_found, "Fail", response, "There is no user with that email address.");
         }
 
         //Step 2: Generate the random reset token (not JWT)
@@ -162,14 +163,14 @@ exports.resetPassword = async (request, response, next) => {
 
         //Step 2: Return an error if there is no user
         if(!user){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_404), "Fail", response, "There is no user with that token.");
+            return sendErrorMessage(status.not_found, "Fail", response, "There is no user with that token.");
         }
 
         //Step 3: Check if token has expired and return an error if it has
         const hasTokenExpired = tokenHasExpired(user.passwordResetTokenExpires.getTime());
 
         if(hasTokenExpired){
-            return sendErrorMessage(Number(process.env.STATUS_CODE_400), "Fail", response, "Your reset token has expired. Please request for a new reset token.");
+            return sendErrorMessage(status.bad_request, "Fail", response, "Your reset token has expired. Please request for a new reset token.");
         }
 
         //Step 4: Set the new password if no errors
@@ -180,7 +181,7 @@ exports.resetPassword = async (request, response, next) => {
         await user.save();
 
         //Step 6: Log the user in immediately
-        return loggingInUsers(user._id, Number(process.env.STATUS_CODE_200), response,'Successful!', 'Your Password Has Been Changed Successfully!');
+        return loggingInUsers(user._id, status.ok, response,'Successful!', 'Your Password Has Been Changed Successfully!');
     }catch(error){
         next(error);
     }
