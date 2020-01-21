@@ -2,15 +2,15 @@
 const BucketListController = require('../../server/controllers/bucketlist.controller');
 const BucketList = require('../../server/models/bucketlist.model');
 const httpMocks = require('node-mocks-http');
-const newBucketList = require('../mock-data/unit/new-bucketlist-unit.json');
-const updatedBucketList = require('../mock-data/unit/updated-bucketlist.json');
-const oneUserBucketLists = require('../mock-data/unit/one-user-bucketlists-unit.json');
-const allBucketLists = require('../mock-data/unit/all-bucketlists.json');
+const newBucketList = require('../mock-data/unit/bucketlists/new-bucketlist-unit.json');
+const updatedBucketList = require('../mock-data/unit/bucketlists/updated-bucketlist.json');
+const oneUserBucketLists = require('../mock-data/unit/bucketlists/one-user-bucketlists-unit.json');
+const allBucketLists = require('../mock-data/unit/bucketlists/all-bucketlists.json');
 const User = require('../../server/models/usermodel');
-const newUser = require('../mock-data/unit/new-user-unit.json');
-const adminUser = require('../mock-data/unit/new-admin-user.json');
-const userWithBucketlist = require('../mock-data/unit/user-with-bucketlist.json');
-const anotherUserWithBucketlist = require('../mock-data/unit/another-user-with-bucketlists.json');
+const newUser = require('../mock-data/unit/users/new-user-unit.json');
+const adminUser = require('../mock-data/unit/users/new-admin-user.json');
+const userWithBucketlist = require('../mock-data/unit/users/user-with-bucketlist.json');
+const anotherUserWithBucketlist = require('../mock-data/unit/users/another-user-with-bucketlists.json');
 
 
 //Mock the BucketList Model methods
@@ -37,19 +37,13 @@ beforeEach(() => {
 //Tests for deleting a specific Bucketlist
 describe("BucketlistController.deleteBucketlist", () => {
     it("should be a function", () => {
-        expect(typeof BucketListController.deleteBucketlist).toBe("function");
-    });
-
-    it("should find the logged in user", async () => {
-        request.params.userid = adminId;
-        await BucketListController.deleteBucketlist(request, response, next);
-        expect(User.findById).toHaveBeenCalledWith(adminId);
+        expect(typeof BucketListController.deleteBucketlist).toStrictEqual("function");
     });
 
     it("should return an error if user is not found", async () => {
-        User.findById.mockReturnValue(null);
+        request.user = null;
         await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect( response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -58,25 +52,25 @@ describe("BucketlistController.deleteBucketlist", () => {
     });
 
     test("An admin should be able to delete any bucketlist", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
         const successMessage = {status: "Success", message: "Bucketlist has been successfully deleted"};
         BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
         await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(successMessage);
     });
 
     it("returns an error when an admin user tries to delete a non-existent bucketlist", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
         BucketList.findByIdAndDelete.mockReturnValue(null);
         await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._getJSONData()).toStrictEqual({status: "Fail", message: "This Bucketlist does not exist."});
     });
 
     it("should handle errors", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
         const errorMessage = {message: "An error occured in trying to find and delete the Bucketlist. Please try again."};
         const rejectedPromise = Promise.reject(errorMessage);
 
@@ -86,24 +80,24 @@ describe("BucketlistController.deleteBucketlist", () => {
     });
     
     test("regular users should be able to delete only their own associated bucketlists", async () => {
-        User.findById.mockReturnValue(anotherUserWithBucketlist);
+        request.user = anotherUserWithBucketlist;
         request.params.id = anotherUserWithBucketlist.bucketlists[0];
         const successMessage = {status: "Success", message: "Bucketlist has been successfully deleted"};
         BucketList.findByIdAndDelete.mockReturnValue(newBucketList);
         await BucketListController.deleteBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(successMessage);
     });
 
     test("error when regular user tries to delete a bucketlist that is not their own", async () => {
-        User.findById.mockReturnValue(userWithBucketlist);
+        request.user = userWithBucketlist;
         request.params.id = bucketlistid;
 
         BucketList.findByIdAndUpdate.mockReturnValue(newBucketList);
         await BucketListController.deleteBucketlist(request, response, next);
 
-        expect(response.statusCode).toBe(403);
+        expect(response.statusCode).toStrictEqual(403);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -115,19 +109,13 @@ describe("BucketlistController.deleteBucketlist", () => {
 //Tests for updating a single bucketlist
 describe("BucketListController.updateBucketList", () => {
     it('should be a function', () => {
-        expect(typeof BucketListController.updateBucketList).toBe('function');
-    });
-
-    it("should find the logged in user", async () => {
-        request.params.userid = adminId; 
-        await BucketListController.updateBucketList(request, response, next);
-        expect(User.findById).toHaveBeenCalledWith(adminId);
+        expect(typeof BucketListController.updateBucketList).toStrictEqual('function');
     });
 
     it("should return an error if the user is not found", async () => {
-        User.findById.mockReturnValue(null);
+        request.user = null;
         await BucketListController.updateBucketList(request, response, next);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -136,7 +124,7 @@ describe("BucketListController.updateBucketList", () => {
     });
 
     it("It should call Bucketlist.findByIdAndUpdate", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
         request.params.id = bucketlistid;
         request.body = updatedBucketList;
 
@@ -148,21 +136,21 @@ describe("BucketListController.updateBucketList", () => {
     });
 
     test("An admin should be able to update any specific bucketlist", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
         BucketList.findByIdAndUpdate.mockReturnValue(updatedBucketList);
 
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._getJSONData()).toStrictEqual(updatedBucketList);
     });
 
     test("error when an admin tries to update a non-existent bucketlist", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;        
         BucketList.findByIdAndUpdate.mockReturnValue(null);
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Not Found",
@@ -171,24 +159,24 @@ describe("BucketListController.updateBucketList", () => {
     });
 
     test("Regular users can update only any of their own associated specific bucketlists", async () => {
-        User.findById.mockReturnValue(userWithBucketlist);
+        request.user = userWithBucketlist;
         request.params.id = userWithBucketlist.bucketlists[0];
         BucketList.findByIdAndUpdate.mockReturnValue(updatedBucketList);
 
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._getJSONData()).toStrictEqual(updatedBucketList);
     });
 
     test("error when a regular user tries to update a non-existent associated bucketlist", async () => {
-        User.findById.mockReturnValue(userWithBucketlist);
+        request.user = userWithBucketlist;
         request.params.id = userWithBucketlist.bucketlists[0];
 
         BucketList.findByIdAndUpdate.mockReturnValue(null);
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Not Found",
@@ -197,13 +185,13 @@ describe("BucketListController.updateBucketList", () => {
     });
 
     test("error when regular user tries to update a bucketlist that is not their own", async () => {
-        User.findById.mockReturnValue(userWithBucketlist);
+        request.user = userWithBucketlist;
         request.params.id = bucketlistid;
 
         BucketList.findByIdAndUpdate.mockReturnValue(updatedBucketList);
         await BucketListController.updateBucketList(request, response, next);
 
-        expect(response.statusCode).toBe(403);
+        expect(response.statusCode).toStrictEqual(403);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -212,7 +200,7 @@ describe("BucketListController.updateBucketList", () => {
     });
 
     it("should handle errors properly", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
         const errorMessage = {message: "Unable to find and update bucketlist"};
         const rejectedPromise = Promise.reject(errorMessage);
 
@@ -226,19 +214,13 @@ describe("BucketListController.updateBucketList", () => {
 //Tests for getting a specific bucketlist
 describe("BucketListController.getSpecificBucketlist", () => {
     it("should be a function", () => {
-        expect(typeof BucketListController.getSpecificBucketlist).toBe("function");
-    });
-
-    it("should find the logged in user", async () => {
-        request.params.userid = adminId;
-        await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(User.findById).toHaveBeenCalledWith(adminId);
+        expect(typeof BucketListController.getSpecificBucketlist).toStrictEqual("function");
     });
 
     it("should return an error if user is not found", async () => {
-        User.findById.mockReturnValue(null);
+        request.user = null;
         await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -246,39 +228,39 @@ describe("BucketListController.getSpecificBucketlist", () => {
         });
     });
     test("An admin can get any specific Bucketlist", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
         BucketList.findById.mockReturnValue(newBucketList);
         await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(newBucketList);
     });  
     
     it("should return an error if an admin user fails to find the bucketlist", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
 
         const errorMessage = {status: "Fail", message: "This Bucketlist does not exist."};
 
         BucketList.findById.mockReturnValue(null);
         await BucketListController.getSpecificBucketlist(request, response, next);
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(errorMessage);
     });
 
     test("A regular user can get any of their own associated specific Bucketlist", async () => {
-        User.findById.mockReturnValue(userWithBucketlist);
+        request.user = userWithBucketlist;
         request.params.id = userWithBucketlist.bucketlists[0];
         BucketList.findById.mockReturnValue(newBucketList);
         await BucketListController.getSpecificBucketlist(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(newBucketList);
     });
 
     it("should return an error if a regular user fails to find the bucketlist", async () => {
-        User.findById.mockReturnValue(userWithBucketlist);
+        request.user = userWithBucketlist;
         request.params.id = userWithBucketlist.bucketlists[0];
 
         const errorMessage = {status: "Fail", message: "This Bucketlist does not exist."};
@@ -286,19 +268,19 @@ describe("BucketListController.getSpecificBucketlist", () => {
         BucketList.findById.mockReturnValue(null);
         await BucketListController.getSpecificBucketlist(request, response, next);
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toStrictEqual(404);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(errorMessage);
     });
 
     it("error if a regular user tries to get someone else's bucketlist", async () => {
         request.params.id = bucketlistid;
-        User.findById.mockReturnValue(userWithBucketlist);
+        request.user = userWithBucketlist;
 
         BucketList.findById.mockReturnValue(newBucketList);
         await BucketListController.getSpecificBucketlist(request, response, next);
 
-        expect(response.statusCode).toBe(403);
+        expect(response.statusCode).toStrictEqual(403);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -307,7 +289,7 @@ describe("BucketListController.getSpecificBucketlist", () => {
     })
 
     it("should handle errors", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
 
         const errorMessage = {message: "Unable to find the bucketlist"};
         const rejectedPromise = Promise.reject(errorMessage);
@@ -322,17 +304,12 @@ describe("BucketListController.getSpecificBucketlist", () => {
 //Tests for getting all bucketlists
 describe("BucketlistController.getBucketlists", () => {
     it("should be a function", () => {
-        expect(typeof BucketListController.getBucketlists).toBe('function');
-    });
-    it("should find the user who wants to get the bucketlists", async () => {
-        request.params.userid = adminId;
-        await BucketListController.getBucketlists(request, response, next);
-        expect(User.findById).toHaveBeenCalledWith(adminId);
+        expect(typeof BucketListController.getBucketlists).toStrictEqual('function');
     });
     it("should return an error message if user is not found", async () => {
-        User.findById.mockReturnValue(null);
+        request.user = null;
         await BucketListController.getBucketlists(request, response, next);
-        expect(response.statusCode).toBe(404); //Not Found
+        expect(response.statusCode).toStrictEqual(404); //Not Found
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
@@ -340,18 +317,18 @@ describe("BucketlistController.getBucketlists", () => {
         });
     });
     it("should retrieve all bucketlists if the user is an administrator", async () => {
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
         BucketList.find.mockReturnValue(allBucketLists);
         await BucketListController.getBucketlists(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(allBucketLists);
     });
     test("regular users should get only their own bucketlists", async () => {
-        User.findById.mockReturnValue(userWithBucketlist);
+        request.user = userWithBucketlist;
         BucketList.findById.mockReturnValue(newBucketList);
         await BucketListController.getBucketlists(request, response, next);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toStrictEqual(200);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual(oneUserBucketLists);
     });
@@ -361,7 +338,7 @@ describe("BucketlistController.getBucketlists", () => {
         const errorMessage = {message: "Unable to find bucketlists"};
         const rejectedPromise = Promise.reject(errorMessage);
 
-        User.findById.mockReturnValue(adminUser);
+        request.user = adminUser;
         BucketList.find.mockReturnValue(rejectedPromise);
 
         await BucketListController.getBucketlists(request, response, next);
@@ -372,17 +349,12 @@ describe("BucketlistController.getBucketlists", () => {
 //Unit tests for creating bucketlists
 describe('BucketListController.createBucketList', () => {
     it("should be a function", () => {
-        expect(typeof BucketListController.createBucketList).toBe('function');
-    });
-    it("should find the user who is creating the bucketlist", async () => {
-        request.params.userid = userId;
-        await BucketListController.createBucketList(request, response, next);
-        expect(User.findById).toHaveBeenCalledWith(userId);
+        expect(typeof BucketListController.createBucketList).toStrictEqual('function');
     });
     it("should return an error if user is not found", async () => {
-        User.findById.mockReturnValue(null);
+        request.user = null
         await BucketListController.createBucketList(request, response, next);
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toStrictEqual(401);
         expect(response._isEndCalled()).toBeTruthy();
         expect(response._getJSONData()).toStrictEqual({
             status: 'Fail',
@@ -391,12 +363,12 @@ describe('BucketListController.createBucketList', () => {
     });
     it("should call Bucketlist.create with valid data", async () => {
         request.body = newBucketList;
-        User.findById.mockReturnValue(newUser);
+        request.user = newUser;
         await BucketListController.createBucketList(request, response, next);
         expect(BucketList.create).toHaveBeenCalledWith(newBucketList);
     }); 
     it("should return an error if user fails to create the bucketlist", async () => {
-        User.findById.mockReturnValue(newUser);
+        request.user = newUser;
         BucketList.create.mockReturnValue(null);
         await BucketListController.createBucketList(request, response, next);
         expect(response._isEndCalled()).toBeTruthy();
@@ -407,8 +379,8 @@ describe('BucketListController.createBucketList', () => {
     });
 
     it("should associate the newly created Bucketlist with the user", async () => {
+        request.user = newUser
         request.params.userid = userId;
-        User.findById.mockReturnValue(newUser);
         BucketList.create.mockReturnValue(newBucketList);
         await BucketListController.createBucketList(request, response, next);
         expect(User.findByIdAndUpdate).toHaveBeenCalledWith(userId, userWithBucketlist, {
@@ -418,12 +390,12 @@ describe('BucketListController.createBucketList', () => {
     });
 
     it("should return an error if it fails to associate the user with the created bucketlist", async () => {
-        User.findById.mockReturnValue(newUser);
+        request.user = newUser;
         BucketList.create.mockReturnValue(newBucketList);
         User.findByIdAndUpdate.mockReturnValue(null);
         await BucketListController.createBucketList(request, response, next);
         expect(response._isEndCalled()).toBeTruthy();
-        expect(response.statusCode).toBe(500);
+        expect(response.statusCode).toStrictEqual(500);
         expect(response._getJSONData()).toStrictEqual({
             status: "Fail",
             message: "Failed to Associate the User with the Bucketlist."
@@ -431,17 +403,17 @@ describe('BucketListController.createBucketList', () => {
     });
 
     it("should respond with the newly created Bucketlist and a status code of 201, if all goes well", async () => {
-        User.findById.mockReturnValue(newUser);
+        request.user = newUser;
         BucketList.create.mockReturnValue(newBucketList);
         User.findByIdAndUpdate.mockReturnValue(userWithBucketlist);
         await BucketListController.createBucketList(request, response, next);
         expect(response._isEndCalled()).toBeTruthy();
-        expect(response.statusCode).toBe(201);
+        expect(response.statusCode).toStrictEqual(201);
         expect(response._getJSONData()).toStrictEqual(newBucketList);
     });
 
     it("should handle all other kinds of error", async () => {
-        User.findById.mockReturnValue(newUser);
+        request.user = newUser;
         BucketList.create.mockReturnValue(newBucketList);
         const errorMessage = {message: "You are unable to perform this action at this time, please try again later"};
         const rejectedPromise = Promise.reject(errorMessage);
@@ -450,4 +422,3 @@ describe('BucketListController.createBucketList', () => {
         expect(next).toHaveBeenCalledWith(errorMessage);
     });
 });
-

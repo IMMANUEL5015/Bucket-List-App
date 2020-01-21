@@ -18,6 +18,14 @@ This Web Application has the features indicated below:
 * It allows users to be signed up.
 * It allows users to login and obtain a token.
 * It allows users to reset their passwords if they forget it.
+* It allows a logged in administrator to retrieve all Users data.
+* It allows a logged in administrator to retrieve the data of any specific user.
+* It allows a logged in regular user to retrieve their own data.
+* It allows a logged in administrator to update the data of any specific user.
+* It allows a logged in regular user to update their own data.
+* It allows a logged in administrator to delete the account of any specific user.
+* It allows a logged in regular user to delete their own account.
+* It allows logged in users to update their passwords
 
 ### Roles
 * It ensures that users have roles.
@@ -68,35 +76,57 @@ The Users of this application are assigned a unique token upon a successful sign
 
 ### Password Reset
 When you forget your password, the following steps must be followed in order to regain control of your account:
-* Make a post request with your email address (the one you used when signing up) to the **forgotPassword** route.
+* Make a post request with your email address (the one you used when signing up) to the **forgotpassword** route.
 * A link will be sent to the email address. 
-* With that link, make a patch request to the **resetPassword** route, along with your new password.
+* With that link, make a patch request to the **resetpassword** route, along with your new password.
 * The new password must be confirmed.
 * You should be logged in automatically. (**Scroll down a little bit to see a demo**).
 
+### Password Update
+When your password is compromised, you can still change it even when you have not forgotten it.
+
+All you need to do is follow these steps:
+* Make a patch request to the **updateuserpassword** route with the following details
+    - The Current Password
+    - The New Password
+    - Confirm the New Password
+* Congratulations! You should be logged in automatically. (**Scroll down a little bit to see a demo**).
+
 ### API Endpoints and their Functionality
 
-| Endpoint                       |Function                               |
-|--------------------------------|---------------------------------------|
-| POST/auth/signup               | Signs up a user                       |
-| POST/auth/login                | Logs in an existing user              |
-| POST/auth/forgotPassword       | Sends a reset link to the user's email| 
-| PATCH/auth/resetPassword/:token| Resets the user's password            | 
-| POST/bucketlists               | Creates a new bucketlist              |
-| GET/bucketlists                | Retrieves all bucketlists             |
-| GET/bucketlists/:id            | Retrieves a single bucketlist         |
-| PUT/bucketlists/:id            | Edit and Update a bucketlist          |
-| DELETE/bucketlists/:id         | Delete a bucketlist                   |
+| Endpoint                          |Function                               |
+|-----------------------------------|---------------------------------------|
+| POST/auth/signup                  | Signs up a user                       |
+| POST/auth/login                   | Logs in an existing user              |
+| POST/auth/forgotpassword          | Sends a reset link to the user's email| 
+| PATCH/auth/resetpassword/:token   | Resets the user's password            |
+| GET/users                         | Retrieve all Users                    |
+| GET/users/:id                     | Retrieve a specific user              |
+| PUT/users/:id                     | Update a specific user                |
+| PATCH/users/:id/updateuserpassword|Update the password of a specific user |
+| DELETE/users/:id                  | Delete a  user's account              |
+| POST/bucketlists                  | Creates a new bucketlist              |
+| GET/bucketlists                   | Retrieves all bucketlists             |
+| GET/bucketlists/:id               | Retrieves a single bucketlist         |
+| PUT/bucketlists/:id               | Edit and Update a bucketlist          |
+| DELETE/bucketlists/:id            | Delete a bucketlist                   |
  
 
 ### Sample Requests and Responses From the API
-- [auth](#auth)
+- [Auth](#auth)
   - [Signup user](#signup-user)
   - [Login user](#login-user)
 
 - [Reset password](#reset-password)
   - [Forgot password](#forgot-password)
   - [Reset password](#reset-password)
+
+- [Users](#users)
+  - [Get users](#get-users)
+  - [Get user](#get-user)
+  - [Update user](#update-user)
+  - [Update password](#update-password)
+  - [Delete user](#delete-user)
 
 - [Bucketlist](#bucketlist)
   - [Create bucketlist](#create-bucketlist)
@@ -106,7 +136,7 @@ When you forget your password, the following steps must be followed in order to 
   - [Delete bucketlist](#delete-bucketlist)
 
   
- ### auth
+ ### Auth
    - signup
    - login
 
@@ -181,7 +211,7 @@ When you forget your password, the following steps must be followed in order to 
 ### Forgot password
 
 * Request
-     * Endpoint: POST: auth/forgotPassword/
+     * Endpoint: POST: auth/forgotpassword/
      * Body (application/json)
      
     ```
@@ -205,7 +235,7 @@ When you forget your password, the following steps must be followed in order to 
 ### Reset password
 
 * Request
-     * Endpoint: PATCH: auth/resetPassword/836dea2ef0823c1563010eaa7184eca32e2d33a8f8d55cf66f0703ec27f43ec3
+     * Endpoint: PATCH: auth/resetpassword/836dea2ef0823c1563010eaa7184eca32e2d33a8f8d55cf66f0703ec27f43ec3
      * Body (application/json)
      
     ```
@@ -224,6 +254,148 @@ When you forget your password, the following steps must be followed in order to 
         "status": "Successful!",
         "message": "Your Password Has Been Changed Successfully!",
         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlMTQzYzBhYmVhZjBkMDNkNDRiNjA0ZCIsImlhdCI6MTU3ODc1NjUyMywiZXhwIjoxNTgxMzQ4NTIzfQ.S4VkkwOmERVvthh6nKC1a45FqobcJsehMlQokuqEy5w"
+    }
+```
+
+### Users
+### Get users
+
+* Request
+     * Endpoint: GET: /users
+
+    
+ * Response
+      * Status: 200: Ok
+      * Body (application/json)
+ 
+```
+  {
+    "status": "Success",
+    "message": [
+        {
+            "bucketlists": [
+                "5e01725e2f08bf16c44f0a3c",
+                "5e14a39b931a600910072cb2"
+            ],
+            "passwordChangedAt": "2019-12-18T00:00:00.000Z",
+            "role": "regular",
+            "_id": "5e016bc1b437260f3c4e5379",
+            "username": "Benjamin25",
+            "fullName": "Benjamin Diai",
+            "email": "benjamindiai@gmail.com",
+            "password": "$2a$12$nYmOD5hebKrDYJovF1vKZuqQtNcmwfPqM.KgA1R1jmBElKSp8zpOW",
+            "__v": 128
+        },
+        {
+            "bucketlists": [],
+            "passwordChangedAt": "2019-12-26T00:00:00.000Z",
+            "role": "regular",
+            "_id": "5e0229837209a01ce0a5a8cd",
+            "username": "Immanuel50",
+            "fullName": "Immanuel Diai",
+            "email": "immanueldiai@gmail.com",
+            "password": "$2a$12$4JXHx4beO586AXIWrPbqcuBGZjVpzo2s9qNKYyw0LbjNlFwsFJrEu",
+            "__v": 0
+        },
+    ]
+}
+```
+### Get user
+
+* Request
+     * Endpoint: GET: /users/5e016bc1b437260f3c4e7066
+
+    
+ * Response
+      * Status: 200: Ok
+      * Body (application/json)
+ 
+```
+        {
+        "bucketlists": [
+            "5e01725e2f08bf16c44f0a3c",
+            "5e14a39b931a600910072cb2"
+        ],
+        "passwordChangedAt": "2019-12-18T00:00:00.000Z",
+        "role": "regular",
+        "_id": "5e016bc1b437260f3c4e7066",
+        "username": "Benjamin25",
+        "fullName": "Benjamin Diai",
+        "email": "benjamindiai@gmail.com",
+        "password": "$2a$12$nYmOD5hebKrDYJovF1vKZuqQtNcmwfPqM.KgA1R1jmBElKSp8zpOW",
+        "__v": 128
+    }
+```
+
+### Update user
+
+* Request
+     * Endpoint: PUT: /users/5e016bc1b437260f3c4e7066
+
+    ```
+    {
+        "fullName":"Diai Benjamin"
+    }
+    ```
+    
+ * Response
+      * Status: 200: Ok
+      * Body (application/json)
+ 
+```
+        {
+        "bucketlists": [
+            "5e01725e2f08bf16c44f0a3c",
+            "5e14a39b931a600910072cb2"
+        ],
+        "passwordChangedAt": "2019-12-18T00:00:00.000Z",
+        "role": "regular",
+        "_id": "5e016bc1b437260f3c4e7066",
+        "username": "Benjamin25",
+        "fullName": "Diai Benjamin",
+        "email": "benjamindiai@gmail.com",
+        "password": "$2a$12$nYmOD5hebKrDYJovF1vKZuqQtNcmwfPqM.KgA1R1jmBElKSp8zpOW",
+        "__v": 128
+    }
+```
+### Update password
+
+* Request
+     * Endpoint: PATCH: users/5e016bc1b437260f3c4e7066/updateuserpassword
+     * Body (application/json)
+     
+    ```
+     {
+    "currentPassword": "yourcurrentpassword",
+    "newPassword": "yournewpassword",
+    "confirmNewPassword": "yournewpassword
+    }
+   ```
+   
+* Response
+    * Status: 200: Ok
+    * Body (application/json)
+    
+ ```
+    {
+        "status": "Success",
+        "message": "You are now logged into the application.",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlMDIyNTgzNzIwOWExMWNlMGE1YTlhYiIsImlhdCI6MTU3OTE3MTE3NiwiZXhwIjoxNTgxNzYzMTc2fQ.eJWlnK28NclaT9-mCDoGIXHbmimJ2gSs8NZjejWAwfk"
+    }
+```
+### Delete user
+
+* Request
+     * Endpoint: DELETE: /users/5e016bc1b437260f3c4e7066
+    
+ * Response
+      * Status: 200: Ok
+      * Body (application/json)
+ 
+```
+    {
+        "status": "Success",
+        "message": "This account has been successfully deleted."
     }
 ```
 
