@@ -3,11 +3,10 @@ const nodemailer = require('nodemailer');
 const sendEmail = async options => {
     //Step 1: Create the Transporter - Our service for sending the email
     const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
+        service: 'SendGrid',
         auth: {
-            user: process.env.EMAIL_USERNAME,
-            pass: process.env.EMAIL_PASSWORD
+            user: process.env.SENDGRID_USERNAME,
+            pass: process.env.SENDGRID_PASSWORD
         }
     });
 
